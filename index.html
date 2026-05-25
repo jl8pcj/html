@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tsum Tsum Style Game</title>
 
 <style>
@@ -29,6 +30,11 @@ body{
     display:flex;
     flex-direction:column;
     overflow:hidden;
+
+    /* スマホ画面に合わせてアスペクト比を維持したまま最大化 */
+    transform: scale(min(calc(100vw / 400), calc(100vh / 720)));
+    transform-origin: center;
+    flex-shrink: 0;
 }
 
 /* ================= TOP UI ================= */
@@ -657,18 +663,19 @@ function createGaugeEffect(x,y,target){
     .getElementById('game-container')
     .getBoundingClientRect();
 
+    // 画面全体の拡大率を取得して内部座標に補正
+    const currentScale = containerRect.width / 400;
+
     setTimeout(()=>{
 
         el.style.left =
         (
-            targetRect.left -
-            containerRect.left + 15
+            (targetRect.left - containerRect.left) / currentScale + 15
         ) + 'px';
 
         el.style.top =
         (
-            targetRect.top -
-            containerRect.top + 15
+            (targetRect.top - containerRect.top) / currentScale + 15
         ) + 'px';
 
         el.style.transform =
@@ -1143,12 +1150,16 @@ canvas.addEventListener('mousemove', (e) => {
     const rect =
     canvas.getBoundingClientRect();
 
+    // 画面最大化（拡大）に伴うキャンバス表示サイズと内部解像度の比率を計算して補正
+    const scaleX = 400 / rect.width;
+    const scaleY = 504 / rect.height;
+
     const found =
     Query.point(
         engine.world.bodies,
         {
-            x:e.clientX - rect.left,
-            y:e.clientY - rect.top
+            x:(e.clientX - rect.left) * scaleX,
+            y:(e.clientY - rect.top) * scaleY
         }
     )[0];
 
