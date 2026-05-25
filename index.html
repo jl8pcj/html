@@ -16,6 +16,8 @@ body{
     height:100vh;
     overflow:hidden;
     font-family:'Arial Black',sans-serif;
+    /* スマホでのスクロールやダブルタップズームを防止 */
+    touch-action: none;
 }
 
 #game-container{
@@ -769,13 +771,20 @@ Events.on(render,'afterRender',() => {
 
 const canvas = render.canvas;
 
-canvas.addEventListener('mousedown', () => {
+// ドラッグ/タッチ開始の共通処理
+function startDrag(e) {
     if(isPaused) return;
     isDragging = true;
     selected = [];
-});
+    
+    // タッチスタート時にその位置のツムを即座に判定
+    if(e.type === 'touchstart') {
+        handleDragMove(e);
+    }
+}
 
-canvas.addEventListener('mouseup', () => {
+// ドラッグ/タッチ終了の共通処理
+function endDrag() {
     if(isPaused) return;
 
     if(selected.length >= 3){
@@ -846,16 +855,31 @@ canvas.addEventListener('mouseup', () => {
     }
     selected = [];
     isDragging = false;
-});
+}
 
-canvas.addEventListener('mousemove', (e) => {
+// ドラッグ/タッチ移動時の共通処理（座標取得を分岐）
+function handleDragMove(e) {
     if(isPaused) return;
     if(!isDragging) return;
 
+    // 画面スクロールを抑止
+    if (e.cancelable) e.preventDefault();
+
     const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+
+    // タッチイベントとマウスイベントの分岐
+    if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
+
     const found = Query.point(engine.world.bodies, {
-        x:e.clientX - rect.left,
-        y:e.clientY - rect.top
+        x: clientX - rect.left,
+        y: clientY - rect.top
     })[0];
 
     if(found && !found.isStatic){
@@ -867,7 +891,17 @@ canvas.addEventListener('mousemove', (e) => {
             selected.push(found);
         }
     }
-});
+}
+
+// マウスイベント登録
+canvas.addEventListener('mousedown', startDrag);
+canvas.addEventListener('mouseup', endDrag);
+canvas.addEventListener('mousemove', handleDragMove);
+
+// タッチイベント登録（スクロール無効化のため passive: false を指定）
+canvas.addEventListener('touchstart', startDrag, { passive: false });
+canvas.addEventListener('touchend', endDrag, { passive: false });
+canvas.addEventListener('touchmove', handleDragMove, { passive: false });
 
 /* ================= START ================= */
 
