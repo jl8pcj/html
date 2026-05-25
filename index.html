@@ -442,10 +442,6 @@ body{
 
 <script>
 
-window.addEventListener('click', () => {
-    document.getElementById('normal-bgm').play();
-},{ once:true });
-
 const gameAreaBg = document.getElementById('game-area-bg');
 const width = gameAreaBg.clientWidth;
 const height = gameAreaBg.clientHeight;
@@ -520,6 +516,20 @@ const scoreTable = {
 
 let activeImages = [];
 let myTsumType = "";
+
+/* ================= BGM START TRIGGER ================= */
+
+// スマホのタッチ操作（touchstart）でも確実に最初のオーディオ再生制限を解除して再生する処理
+function startFirstBgm() {
+    if (normalBgm.paused && !isPaused && !isFever) {
+        normalBgm.play().catch(err => console.log("Audio play blocked:", err));
+    }
+    window.removeEventListener('click', startFirstBgm);
+    window.removeEventListener('touchstart', startFirstBgm);
+}
+
+window.addEventListener('click', startFirstBgm);
+window.addEventListener('touchstart', startFirstBgm);
 
 /* ================= SKILL ================= */
 
@@ -885,8 +895,6 @@ function handleDragMove(e) {
     if(isPaused) return;
     if(!isDragging) return;
 
-    //000
-    
     // 画面スクロールを抑止
     if (e.cancelable) e.preventDefault();
 
