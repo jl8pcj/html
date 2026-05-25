@@ -20,8 +20,8 @@ body{
 
 #game-container{
     position:relative;
-    width:400px;
-    height:720px;
+    width:100vw; /* 横幅を画面いっぱいに最大化 */
+    height:100dvh;
 
     background-image: url('bg.jpg');
     background-size: cover;
@@ -29,29 +29,28 @@ body{
 
     display:flex;
     flex-direction:column;
+    justify-content:center; /* 縦に溢れないよう中央に寄せる */
+    align-items:center;
     overflow:hidden;
-
-    /* スマホ画面に合わせてアスペクト比を維持したまま最大化 */
-    transform: scale(min(calc(100vw / 400), calc(100vh / 720)));
-    transform-origin: center;
-    flex-shrink: 0;
 }
 
 /* ================= TOP UI ================= */
 
 #top-ui{
-    height:15%;
+    width:100%;
+    height:70px;
     z-index:10;
     display:flex;
     justify-content:center;
     align-items:center;
     pointer-events:none;
     position:relative;
+    flex-shrink: 0;
 }
 
 #score-oval{
-    width:35%;
-    height:40px;
+    width:160px;
+    height:35px;
 
     background:
     radial-gradient(
@@ -62,7 +61,6 @@ body{
     );
 
     border-radius:999px;
-
     border:3px solid rgba(255,255,255,0.9);
 
     box-shadow:
@@ -72,12 +70,11 @@ body{
     display:flex;
     justify-content:flex-end;
     align-items:center;
-
     padding-right:12px;
 }
 
 #score-display{
-    font-size:22px;
+    font-size:20px;
     color:#ffffff;
     font-weight:bold;
 
@@ -94,10 +91,9 @@ body{
     top:50%;
     transform:translateY(-50%);
 
-    width:70px;
-    height:70px;
+    width:55px;
+    height:55px;
 
-    /* 右回りに減少するようグラデーションを調整 */
     background:
     conic-gradient(
         from 0deg,
@@ -107,15 +103,14 @@ body{
         #66ecff 360deg
     );
 
-    border-radius:25px;
-
-    border:4px solid rgba(255,255,255,0.95);
+    border-radius:18px;
+    border:3px solid rgba(255,255,255,0.95);
 
     display:flex;
     justify-content:center;
     align-items:center;
 
-    font-size:26px;
+    font-size:22px;
     font-weight:bold;
     color:#ffffff;
 
@@ -124,7 +119,6 @@ body{
     0 4px 6px rgba(0,0,0,0.3);
 
     z-index:2000;
-
     --timer-angle:360;
 }
 
@@ -141,8 +135,8 @@ body{
     top:50%;
     transform:translateY(-50%);
 
-    width:70px;
-    height:70px;
+    width:55px;
+    height:55px;
 
     background:
     linear-gradient(
@@ -151,15 +145,14 @@ body{
         #ffb703 100%
     );
 
-    border-radius:25px;
-
-    border:4px solid rgba(255,255,255,0.95);
+    border-radius:18px;
+    border:3px solid rgba(255,255,255,0.95);
 
     display:flex;
     justify-content:center;
     align-items:center;
 
-    font-size:36px;
+    font-size:28px;
     font-weight:bold;
     color:#7a4b00;
 
@@ -175,8 +168,9 @@ body{
 /* ================= PLAY AREA ================= */
 
 #game-area-bg{
-    height:70%;
     width:100%;
+    height:52dvh; /* 中央エリアの縦幅の割合を明示的に狭く設定 */
+    flex-shrink: 0;
 
     background:
     radial-gradient(
@@ -187,7 +181,6 @@ body{
     );
 
     border-radius:200px / 120px;
-
     z-index:1;
     position:relative;
 
@@ -200,12 +193,10 @@ body{
 
 #matter-canvas{
     position:absolute;
-    top:18%;
+    top:0;
     left:0;
-
-    width:400px;
-    height:504px;
-
+    width:100%;
+    height:100%;
     z-index:999;
 }
 
@@ -213,24 +204,20 @@ body{
 
 #combo-container{
     position:absolute;
-    top:40px;
+    top:30px;
     right:20px;
 
     text-align:center;
     color:#fff;
-
     z-index:1001;
-
     opacity:0;
     transition:opacity 0.2s;
-
     pointer-events:none;
 }
 
 #combo-count{
-    font-size:50px;
+    font-size:40px;
     font-style:italic;
-
     display:block;
     line-height:1;
 
@@ -240,31 +227,30 @@ body{
 }
 
 #combo-label{
-    font-size:18px;
+    font-size:14px;
     font-weight:bold;
-
-    text-shadow:
-    1px 1px 2px #000;
+    text-shadow:1px 1px 2px #000;
 }
 
 /* ================= BOTTOM UI ================= */
 
 #bottom-ui{
-    height:15%;
+    width:100%;
+    height:80px;
     position:relative;
     z-index:10;
+    flex-shrink: 0;
 }
 
 /* ================= MY TSUM ================= */
 
 #mytsum-btn{
     position:absolute;
-    bottom:20px;
+    bottom:12px;
     left:20px;
 
-    /* 扇風機ボタンと同じ70pxに戻す */
-    width:70px;
-    height:70px;
+    width:56px;
+    height:56px;
 
     background:
     conic-gradient(
@@ -277,8 +263,8 @@ body{
 
     --skill-angle:0deg;
 
-    border-radius:25px; 
-    border:4px solid rgba(255,255,255,0.95);
+    border-radius:18px; 
+    border:3px solid rgba(255,255,255,0.95);
 
     overflow:visible;
     display:flex;
@@ -294,9 +280,8 @@ body{
 }
 
 #mytsum-btn img{
-    /* 画像も扇風機ボタンの画像サイズに合わせる */
-    width:42px;
-    height:42px;
+    width:34px;
+    height:34px;
     object-fit:contain;
     transition: filter 0.3s;
 }
@@ -305,29 +290,21 @@ body{
 
 #fever-container{
     position:absolute;
-
-    left:120px;
-    right:120px;
-
-    bottom:34px;
-
-    height:40px;
-
+    left:100px;
+    right:100px;
+    bottom:24px;
+    height:32px;
     display:flex;
     align-items:center;
     justify-content:center;
-
     z-index:1001;
 }
 
 #fever-bar-bg{
     position:relative;
-
     width:100%;
     height:100%;
-
     overflow:hidden;
-
     border-radius:999px;
 
     background:
@@ -347,13 +324,10 @@ body{
 
 #fever-bar-fill{
     position:absolute;
-
     left:0;
     top:0;
-
     width:0%;
     height:100%;
-
     border-radius:999px;
 
     background:
@@ -368,17 +342,13 @@ body{
 
 #fever-text{
     position:absolute;
-
     width:100%;
     height:100%;
-
     display:flex;
     justify-content:center;
     align-items:center;
-
     color:#ffffff;
-
-    font-size:18px;
+    font-size:15px;
     font-weight:bold;
 
     text-shadow:
@@ -390,11 +360,11 @@ body{
 
 #fan-btn{
     position:absolute;
-    bottom:20px;
+    bottom:12px;
     right:20px;
 
-    width:70px;
-    height:70px;
+    width:56px;
+    height:56px;
 
     background:
     linear-gradient(
@@ -403,9 +373,8 @@ body{
         #ffb703 100%
     );
 
-    border-radius:25px;
-
-    border:4px solid rgba(255,255,255,0.95);
+    border-radius:18px;
+    border:3px solid rgba(255,255,255,0.95);
 
     display:flex;
     justify-content:center;
@@ -416,13 +385,12 @@ body{
     0 4px 6px rgba(0,0,0,0.3);
 
     z-index:1002;
-
     cursor:pointer;
 }
 
 #fan-image{
-    width:42px;
-    height:42px;
+    width:34px;
+    height:34px;
     object-fit:contain;
 }
 
@@ -434,52 +402,35 @@ body{
 <div id="game-container">
 
     <div id="top-ui">
-
         <div id="time-box">
             <span id="time-display">60</span>
         </div>
-
         <div id="score-oval">
             <div id="score-display">0</div>
         </div>
-
         <div id="pause-btn">Ⅱ</div>
-
     </div>
 
     <div id="game-area-bg">
-
         <div id="combo-container">
             <span id="combo-count">0</span>
             <span id="combo-label">COMBO</span>
         </div>
-
     </div>
 
     <div id="bottom-ui">
-
         <div id="mytsum-btn">
             <img id="mytsum-image" src="">
         </div>
-
         <div id="fever-container">
-
             <div id="fever-bar-bg">
-
                 <div id="fever-bar-fill"></div>
-
-                <div id="fever-text">
-                    FEVER
-                </div>
-
+                <div id="fever-text">FEVER</div>
             </div>
-
         </div>
-
         <div id="fan-btn">
             <img src="Fun.png" id="fan-image">
         </div>
-
     </div>
 
 </div>
@@ -492,10 +443,12 @@ body{
 <script>
 
 window.addEventListener('click', () => {
-
     document.getElementById('normal-bgm').play();
-
 },{ once:true });
+
+const gameAreaBg = document.getElementById('game-area-bg');
+const width = gameAreaBg.clientWidth;
+const height = gameAreaBg.clientHeight;
 
 const {
     Engine,
@@ -512,11 +465,11 @@ const {
 const engine = Engine.create();
 
 const render = Render.create({
-    element:document.getElementById('game-container'),
+    element:gameAreaBg,
     engine:engine,
     options:{
-        width:400,
-        height:504,
+        width:width,
+        height:height,
         wireframes:false,
         background:'transparent'
     }
@@ -543,7 +496,6 @@ let feverInterval = null;
 let feverTimer = null;
 
 /* SKILL */
-
 let skillGauge = 0;
 let isSkillFull = false;
 const SKILL_MAX = 30;
@@ -563,19 +515,7 @@ const normalBgm = document.getElementById('normal-bgm');
 const feverBgm = document.getElementById('fever-bgm');
 
 const scoreTable = {
-    3:300,
-    4:700,
-    5:1300,
-    6:2100,
-    7:3100,
-    8:4600,
-    9:6100,
-    10:7600,
-    11:9600,
-    12:11600,
-    13:13600,
-    14:15600,
-    15:18100
+    3:300, 4:700, 5:1300, 6:2100, 7:3100, 8:4600, 9:6100, 10:7600, 11:9600, 12:11600, 13:13600, 14:15600, 15:18100
 };
 
 let activeImages = [];
@@ -584,9 +524,7 @@ let myTsumType = "";
 /* ================= SKILL ================= */
 
 function updateSkillGauge(){
-
     const angle = (skillGauge / SKILL_MAX) * 360;
-
     myTsumBtn.style.setProperty('--skill-angle', angle + 'deg');
 
     if (skillGauge >= SKILL_MAX && !isSkillFull) {
@@ -598,10 +536,7 @@ function updateSkillGauge(){
 }
 
 function triggerFullGaugeEffect() {
-    // 拡大アニメーション
-    myTsumBtn.style.transform = 'scale(1.2)';
-    
-    // 光るエフェクト (フィルタを使用)
+    myTsumBtn.style.transform = 'scale(1.1)';
     myTsumImg.style.filter = 'brightness(200%) drop-shadow(0 0 10px white)';
     
     setTimeout(() => {
@@ -613,9 +548,7 @@ function triggerFullGaugeEffect() {
 /* ================= EFFECT ================= */
 
 function createGaugeEffect(x,y,target){
-
     const el = document.createElement('img');
-
     if(target === 'fever'){
         el.src = '1.png';
     }else{
@@ -623,107 +556,53 @@ function createGaugeEffect(x,y,target){
     }
 
     el.style.position = 'absolute';
-
     el.style.left = x + 'px';
     el.style.top = y + 'px';
-
-    el.style.width = '40px';
-    el.style.height = '40px';
-
+    el.style.width = '35px';
+    el.style.height = '35px';
     el.style.pointerEvents = 'none';
-
     el.style.zIndex = '5000';
+    el.style.transition = 'all 0.45s ease';
 
-    el.style.transition =
-    'all 0.45s ease';
+    document.getElementById('game-container').appendChild(el);
 
-    document
-    .getElementById('game-container')
-    .appendChild(el);
+    let targetRect = target === 'fever'
+        ? document.getElementById('fever-container').getBoundingClientRect()
+        : myTsumBtn.getBoundingClientRect();
 
-    let targetRect;
-
-    if(target === 'fever'){
-
-        targetRect =
-        document
-        .getElementById('fever-container')
-        .getBoundingClientRect();
-
-    }else{
-
-        targetRect =
-        myTsumBtn
-        .getBoundingClientRect();
-
-    }
-
-    const containerRect =
-    document
-    .getElementById('game-container')
-    .getBoundingClientRect();
-
-    // 画面全体の拡大率を取得して内部座標に補正
-    const currentScale = containerRect.width / 400;
+    const containerRect = document.getElementById('game-container').getBoundingClientRect();
 
     setTimeout(()=>{
-
-        el.style.left =
-        (
-            (targetRect.left - containerRect.left) / currentScale + 15
-        ) + 'px';
-
-        el.style.top =
-        (
-            (targetRect.top - containerRect.top) / currentScale + 15
-        ) + 'px';
-
-        el.style.transform =
-        'scale(0.3)';
-
+        el.style.left = (targetRect.left - containerRect.left + 10) + 'px';
+        el.style.top = (targetRect.top - containerRect.top + 10) + 'px';
+        el.style.transform = 'scale(0.3)';
         el.style.opacity = '0';
-
     },10);
 
     setTimeout(()=>{
-
         el.remove();
-
     },500);
-
 }
 
 /* ================= TSUM ================= */
 
 function selectTsums(){
-
     activeImages =
     Array.from({length:14}, (_,i)=>`${i+1}.png`)
     .sort(()=>0.5-Math.random())
     .slice(0,5);
 
-    myTsumType =
-    activeImages[
-        Math.floor(Math.random()*activeImages.length)
-    ];
-
+    myTsumType = activeImages[Math.floor(Math.random()*activeImages.length)];
     myTsumImg.src = myTsumType;
 }
 
 selectTsums();
 
 function createTsum(x,y){
-
-    const type =
-    activeImages[
-        Math.floor(Math.random()*activeImages.length)
-    ];
-
+    const type = activeImages[Math.floor(Math.random()*activeImages.length)];
     return Bodies.circle(x,y,28,{
-
         restitution:0.2,
         friction:0.1,
-
         render:{
             sprite:{
                 texture:type,
@@ -731,41 +610,32 @@ function createTsum(x,y){
                 yScale:0.45
             }
         },
-
         plugin:{
             tsumType:type
         }
-
     });
-
 }
 
 /* ================= WALL ================= */
 
 Composite.add(engine.world,[
-
-    Bodies.rectangle(5,252,20,504,{isStatic:true,render:{visible:false}}),
-    Bodies.rectangle(395,252,20,504,{isStatic:true,render:{visible:false}}),
-    Bodies.rectangle(200,505,300,20,{isStatic:true,render:{visible:false}}),
-    Bodies.rectangle(55,475,70,20,{isStatic:true,render:{visible:false},angle:0.8}),
-    Bodies.rectangle(345,475,70,20,{isStatic:true,render:{visible:false},angle:-0.8})
-
+    Bodies.rectangle(10, height/2, 20, height, {isStatic:true,render:{visible:false}}),
+    Bodies.rectangle(width - 10, height/2, 20, height, {isStatic:true,render:{visible:false}}),
+    Bodies.rectangle(width/2, height - 10, width, 20, {isStatic:true,render:{visible:false}}),
+    Bodies.rectangle(55, height - 35, 70, 20, {isStatic:true,render:{visible:false},angle:0.8}),
+    Bodies.rectangle(width - 55, height - 35, 70, 20, {isStatic:true,render:{visible:false},angle:-0.8})
 ]);
 
 function spawnTsums(){
-
     for(let i=0;i<45;i++){
-
         Composite.add(
             engine.world,
             createTsum(
-                Math.random()*320+40,
+                Math.random()*(width-80)+40,
                 Math.random()*-400
             )
         );
-
     }
-
 }
 
 spawnTsums();
@@ -773,98 +643,57 @@ spawnTsums();
 /* ================= FEVER ================= */
 
 function updateFeverBar(){
-
-    const percent =
-    Math.min(
-        (feverCount / 30) * 100,
-        100
-    );
-
-    feverBarFill.style.width =
-    percent + "%";
+    const percent = Math.min((feverCount / 30) * 100, 100);
+    feverBarFill.style.width = percent + "%";
 
     if(percent >= 100 && !isFever){
-
         startFever();
-
     }
-
 }
 
 function startFever(){
-
     isFever = true;
-
     feverCount = 30;
     feverTimeLeft = FEVER_TIME;
-
     feverBarFill.style.width = "100%";
-
     feverText.innerText = "FEVER!!";
-
     timeLeft += 5;
 
-    if(timeLeft > 99){
-        timeLeft = 99;
-    }
+    if(timeLeft > 99) timeLeft = 99;
 
-    document.getElementById(
-        'game-area-bg'
-    ).style.boxShadow =
+    document.getElementById('game-area-bg').style.boxShadow =
     `
     inset 0 0 40px rgba(255,255,0,0.9),
     inset 0 0 80px rgba(255,180,0,0.8)
     `;
 
     normalBgm.pause();
-
     feverBgm.currentTime = 0;
     feverBgm.play();
 
     clearInterval(feverInterval);
-
     feverInterval = setInterval(() => {
-
         if(isPaused) return;
-
         feverTimeLeft -= 0.1;
-
-        if(feverTimeLeft < 0){
-            feverTimeLeft = 0;
-        }
-
-        feverCount =
-        (feverTimeLeft / FEVER_TIME) * 30;
-
+        if(feverTimeLeft < 0) feverTimeLeft = 0;
+        feverCount = (feverTimeLeft / FEVER_TIME) * 30;
         updateFeverBar();
-
     },100);
 
     clearTimeout(feverTimer);
-
     feverTimer = setTimeout(() => {
-
         endFever();
-
     },FEVER_TIME * 1000);
-
 }
 
 function endFever(){
-
     clearInterval(feverInterval);
-
     isFever = false;
-
     feverCount = 0;
-
     updateFeverBar();
-
     feverText.innerText = "FEVER";
 
-    document.getElementById(
-        'game-area-bg'
-    ).style.boxShadow =
+    document.getElementById('game-area-bg').style.boxShadow =
     `
     inset 0 8px 20px rgba(255,255,255,0.12),
     inset 0 -10px 20px rgba(0,0,0,0.35)
@@ -872,80 +701,49 @@ function endFever(){
 
     feverBgm.pause();
     feverBgm.currentTime = 0;
-
     normalBgm.play();
-
 }
 
 /* ================= TIMER ================= */
 
 setInterval(() => {
-
     if(!isPaused && timeLeft > 0){
-
         timeLeft--;
-
-        timeDisplay.innerText =
-        timeLeft;
-
-        const angle =
-        (timeLeft / 60) * 360;
-
-        timeBox.style.setProperty(
-            '--timer-angle',
-            angle
-        );
-
+        timeDisplay.innerText = timeLeft;
+        const angle = (timeLeft / 60) * 360;
+        timeBox.style.setProperty('--timer-angle', angle);
     }
-
 },1000);
 
 /* ================= PAUSE ================= */
 
 pauseBtn.onclick = () => {
-
     isPaused = !isPaused;
-
     if(isPaused){
-
         pauseBtn.innerText = "▶";
-
         normalBgm.pause();
         feverBgm.pause();
-
     }else{
-
         pauseBtn.innerText = "Ⅱ";
-
         if(isFever){
             feverBgm.play();
         }else{
             normalBgm.play();
         }
-
     }
-
 };
 
 /* ================= FAN ================= */
 
 document.getElementById('fan-btn').onclick = () => {
-
     engine.world.bodies.forEach(b => {
-
         if(!b.isStatic){
-
             Body.setPosition(b,{
-
-                x:Math.random()*320+40,
-                y:Math.random()*400+50
-
+                x:Math.random()*(width-80)+40,
+                y:Math.random()*(height-100)+50
             });
-
         }
-
     });
-
 };
 
 /* ================= CHAIN ================= */
@@ -954,258 +752,130 @@ let selected = [];
 let isDragging = false;
 
 Events.on(render,'afterRender',() => {
-
     if(selected.length > 0){
-
         const ctx = render.context;
-
         ctx.shadowBlur = 20;
         ctx.shadowColor = '#00e1ff';
-
         ctx.strokeStyle = '#a0f0ff';
         ctx.lineWidth = 10;
         ctx.lineJoin = 'round';
-
         ctx.beginPath();
-
-        ctx.moveTo(
-            selected[0].position.x,
-            selected[0].position.y
-        );
-
+        ctx.moveTo(selected[0].position.x, selected[0].position.y);
         selected.forEach(t => {
-
-            ctx.lineTo(
-                t.position.x,
-                t.position.y
-            );
-
+            ctx.lineTo(t.position.x, t.position.y);
         });
-
         ctx.stroke();
-
         ctx.shadowBlur = 0;
-
     }
-
 });
 
 const canvas = render.canvas;
 
 canvas.addEventListener('mousedown', () => {
-
     if(isPaused) return;
-
     isDragging = true;
     selected = [];
-
 });
 
 canvas.addEventListener('mouseup', () => {
-
     if(isPaused) return;
 
     if(selected.length >= 3){
+        const type = selected[0].plugin.tsumType;
 
-        const type =
-        selected[0].plugin.tsumType;
-
-        if(
-            selected.every(
-                t => t.plugin.tsumType === type
-            )
-        ){
+        if(selected.every(t => t.plugin.tsumType === type)){
+            const areaRect = gameAreaBg.getBoundingClientRect();
+            const containerRect = document.getElementById('game-container').getBoundingClientRect();
+            const offsetX = areaRect.left - containerRect.left;
+            const offsetY = areaRect.top - containerRect.top;
 
             selected.forEach(t => {
-
                 createGaugeEffect(
-
-                    t.position.x,
-                    t.position.y + 120,
-
-                    t.plugin.tsumType === myTsumType
-                    ? myTsumType
-                    : 'fever'
-
+                    t.position.x + offsetX,
+                    t.position.y + offsetY,
+                    t.plugin.tsumType === myTsumType ? myTsumType : 'fever'
                 );
-
             });
 
-            const baseScore =
-            scoreTable[
-                Math.min(selected.length,15)
-            ] || 0;
+            const baseScore = scoreTable[Math.min(selected.length,15)] || 0;
+            let finalScore = Math.floor(baseScore * (1 + (comboCount + 10) / 100));
 
-            let finalScore =
-            Math.floor(
-                baseScore *
-                (
-                    1 +
-                    (comboCount + 10) / 100
-                )
-            );
-
-            if(isFever){
-                finalScore *= 3;
-            }
+            if(isFever) finalScore *= 3;
 
             score += finalScore;
-
-            scoreDisplay.innerText =
-            Math.floor(score).toLocaleString();
+            scoreDisplay.innerText = Math.floor(score).toLocaleString();
 
             comboCount++;
-
             comboContainer.style.opacity = "1";
-
-            comboCountText.innerText =
-            comboCount;
+            comboCountText.innerText = comboCount;
 
             clearTimeout(comboTimer);
-
             if(!isFever){
-
                 comboTimer = setTimeout(() => {
-
                     comboCount = 0;
-
                     comboContainer.style.opacity = "0";
-
                 },4000);
-
             }
 
-            const myTsumRemoved =
-            selected.filter(
-                t => t.plugin.tsumType === myTsumType
-            ).length;
-
-            const normalRemoved =
-            selected.length - myTsumRemoved;
+            const myTsumRemoved = selected.filter(t => t.plugin.tsumType === myTsumType).length;
+            const normalRemoved = selected.length - myTsumRemoved;
 
             /* MYTSUM → SKILL */
-
             if(myTsumRemoved > 0){
-
                 skillGauge += myTsumRemoved;
-
-                if(skillGauge > SKILL_MAX){
-                    skillGauge = SKILL_MAX;
-                }
-
+                if(skillGauge > SKILL_MAX) skillGauge = SKILL_MAX;
                 updateSkillGauge();
-
             }
 
             /* NORMAL → FEVER */
-
             if(!isFever && normalRemoved > 0){
-
                 feverCount += normalRemoved;
-
-                if(feverCount > 30){
-                    feverCount = 30;
-                }
-
+                if(feverCount > 30) feverCount = 30;
                 updateFeverBar();
-
             }
 
             selected.forEach(b => {
-
-                Composite.remove(
-                    engine.world,
-                    b
-                );
-
+                Composite.remove(engine.world, b);
             });
 
             for(let i=0;i<selected.length;i++){
-
                 Composite.add(
                     engine.world,
-
-                    createTsum(
-                        Math.random()*320+40,
-                        -50
-                    )
+                    createTsum(Math.random()*(width-80)+40, -50)
                 );
-
             }
-
         }
-
     }
-
     selected = [];
     isDragging = false;
-
 });
 
 canvas.addEventListener('mousemove', (e) => {
-
     if(isPaused) return;
     if(!isDragging) return;
 
-    const rect =
-    canvas.getBoundingClientRect();
-
-    // 画面最大化（拡大）に伴うキャンバス表示サイズと内部解像度の比率を計算して補正
-    const scaleX = 400 / rect.width;
-    const scaleY = 504 / rect.height;
-
-    const found =
-    Query.point(
-        engine.world.bodies,
-        {
-            x:(e.clientX - rect.left) * scaleX,
-            y:(e.clientY - rect.top) * scaleY
-        }
-    )[0];
+    const rect = canvas.getBoundingClientRect();
+    const found = Query.point(engine.world.bodies, {
+        x:e.clientX - rect.left,
+        y:e.clientY - rect.top
+    })[0];
 
     if(found && !found.isStatic){
-
-        const last =
-        selected[selected.length - 1];
-
+        const last = selected[selected.length - 1];
         if(
-
             selected.length === 0 ||
-
-            (
-                found.plugin.tsumType ===
-                last.plugin.tsumType &&
-
-                !selected.includes(found) &&
-
-                Vector.magnitude(
-                    Vector.sub(
-                        found.position,
-                        last.position
-                    )
-                ) < 80
-            )
-
+            (found.plugin.tsumType === last.plugin.tsumType && !selected.includes(found) && Vector.magnitude(Vector.sub(found.position, last.position)) < 80)
         ){
-
             selected.push(found);
-
         }
-
     }
-
 });
 
 /* ================= START ================= */
 
 updateSkillGauge();
-
 Render.run(render);
-
-Runner.run(
-    Runner.create(),
-    engine
-);
+Runner.run(Runner.create(), engine);
 
 </script>
 
