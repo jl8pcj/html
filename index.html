@@ -7,95 +7,93 @@
 
 <style>
 
-body{
-    margin:0;
-    background:#02080a;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    overflow:hidden;
-    font-family:'Arial Black',sans-serif;
-    /* スマホでのスクロールやダブルタップズームを防止 */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #02080a;
+    overflow: hidden;
+    font-family: 'Arial Black', sans-serif;
     touch-action: none;
 }
 
-#game-container{
-    position:relative;
-    width:100vw; /* 横幅を画面いっぱいに最大化 */
-    height:100dvh;
+#game-container {
+    position: absolute;
+    top: 0; /* ブラウザの最上部から描画 */
+    left: 0;
+    width: 100vw;
+    height: 100dvh; /* 画面全体の高さを完全にカバー */
 
     background-image: url('bg.jpg');
     background-size: cover;
     background-position: center;
 
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 /* ================= TOP UI ================= */
 
-#top-ui{
-    width:100%;
-    height:15dvh; /* 全体の1.5割 */
-    z-index:10;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    pointer-events:none;
-    position:relative;
+#top-ui {
+    width: 100%;
+    height: 15dvh; /* 全体の1.5割 */
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    position: relative;
     flex-shrink: 0;
 }
 
-#score-oval{
-    width:160px;
-    height:35px;
+#score-oval {
+    width: 160px;
+    height: 35px;
 
-    background:
-    radial-gradient(
+    background: radial-gradient(
         circle at 30% 20%,
         #69dcff 0%,
         #2f8dd0 45%,
         #1f5ea6 100%
     );
 
-    border-radius:999px;
-    border:3px solid rgba(255,255,255,0.9);
+    border-radius: 999px;
+    border: 3px solid rgba(255,255,255,0.9);
 
     box-shadow:
-    inset 0 2px 4px rgba(255,255,255,0.35),
-    0 4px 8px rgba(0,0,0,0.35);
+        inset 0 2px 4px rgba(255,255,255,0.35),
+        0 4px 8px rgba(0,0,0,0.35);
 
-    display:flex;
-    justify-content:flex-end;
-    align-items:center;
-    padding-right:12px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 12px;
 }
 
-#score-display{
-    font-size:20px;
-    color:#ffffff;
-    font-weight:bold;
+#score-display {
+    font-size: 20px;
+    color: #ffffff;
+    font-weight: bold;
 
     text-shadow:
-    0 0 6px rgba(0,0,0,0.8),
-    2px 2px 0px #003366;
+        0 0 6px rgba(0,0,0,0.8),
+        2px 2px 0px #003366;
 }
 
 /* ================= TIME ================= */
 
-#time-box{
-    position:absolute;
-    left:20px;
-    top:50%;
-    transform:translateY(-50%);
+#time-box {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
 
-    width:55px;
-    height:55px;
+    width: 55px;
+    height: 55px;
 
-    background:
-    conic-gradient(
+    background: conic-gradient(
         from 0deg,
         #173a96 0deg,
         #173a96 calc(360deg - (var(--timer-angle) * 1deg)),
@@ -103,157 +101,153 @@ body{
         #66ecff 360deg
     );
 
-    border-radius:18px;
-    border:3px solid rgba(255,255,255,0.95);
+    border-radius: 18px;
+    border: 3px solid rgba(255,255,255,0.95);
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    font-size:22px;
-    font-weight:bold;
-    color:#ffffff;
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffffff;
 
     box-shadow:
-    inset 0 2px 5px rgba(255,255,255,0.25),
-    0 4px 6px rgba(0,0,0,0.3);
+        inset 0 2px 5px rgba(255,255,255,0.25),
+        0 4px 6px rgba(0,0,0,0.3);
 
-    z-index:2000;
-    --timer-angle:360;
+    z-index: 2000;
+    --timer-angle: 360;
 }
 
-#time-display{
-    text-shadow:
-    0 0 6px rgba(0,0,0,0.7);
+#time-display {
+    text-shadow: 0 0 6px rgba(0,0,0,0.7);
 }
 
 /* ================= PAUSE ================= */
 
-#pause-btn{
-    position:absolute;
-    right:20px;
-    top:50%;
-    transform:translateY(-50%);
+#pause-btn {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
 
-    width:55px;
-    height:55px;
+    width: 55px;
+    height: 55px;
 
-    background:
-    linear-gradient(
+    background: linear-gradient(
         to bottom,
         #ffd84d 0%,
         #ffb703 100%
     );
 
-    border-radius:18px;
-    border:3px solid rgba(255,255,255,0.95);
+    border-radius: 18px;
+    border: 3px solid rgba(255,255,255,0.95);
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    font-size:28px;
-    font-weight:bold;
-    color:#7a4b00;
+    font-size: 28px;
+    font-weight: bold;
+    color: #7a4b00;
 
     box-shadow:
-    inset 0 2px 5px rgba(255,255,255,0.4),
-    0 4px 6px rgba(0,0,0,0.3);
+        inset 0 2px 5px rgba(255,255,255,0.4),
+        0 4px 6px rgba(0,0,0,0.3);
 
-    z-index:2000;
-    pointer-events:auto;
-    cursor:pointer;
+    z-index: 2000;
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 /* ================= PLAY AREA ================= */
 
-#game-area-bg{
-    width:100%;
-    height:70dvh; /* 全体の7割 */
+#game-area-bg {
+    width: 100%;
+    height: 70dvh; /* 全体の7割 */
     flex-shrink: 0;
 
-    background:
-    radial-gradient(
+    background: radial-gradient(
         circle at 50% 35%,
         #274fba 0%,
         #173a96 45%,
         #0c256f 100%
     );
 
-    border-radius:200px / 120px;
-    z-index:1;
-    position:relative;
+    border-radius: 200px / 120px;
+    z-index: 1;
+    position: relative;
 
     box-shadow:
-    inset 0 8px 20px rgba(255,255,255,0.12),
-    inset 0 -10px 20px rgba(0,0,0,0.35);
+        inset 0 8px 20px rgba(255,255,255,0.12),
+        inset 0 -10px 20px rgba(0,0,0,0.35);
 
-    overflow:hidden;
+    overflow: hidden;
 }
 
-#matter-canvas{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    z-index:999;
+#matter-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
 }
 
 /* ================= COMBO ================= */
 
-#combo-container{
-    position:absolute;
-    top:30px;
-    right:20px;
+#combo-container {
+    position: absolute;
+    top: 30px;
+    right: 20px;
 
-    text-align:center;
-    color:#fff;
-    z-index:1001;
-    opacity:0;
-    transition:opacity 0.2s;
-    pointer-events:none;
+    text-align: center;
+    color: #fff;
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
 }
 
-#combo-count{
-    font-size:40px;
-    font-style:italic;
-    display:block;
-    line-height:1;
+#combo-count {
+    font-size: 40px;
+    font-style: italic;
+    display: block;
+    line-height: 1;
 
     text-shadow:
-    0 0 10px #00e1ff,
-    2px 2px 2px #000;
+        0 0 10px #00e1ff,
+        2px 2px 2px #000;
 }
 
-#combo-label{
-    font-size:14px;
-    font-weight:bold;
-    text-shadow:1px 1px 2px #000;
+#combo-label {
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px #000;
 }
 
 /* ================= BOTTOM UI ================= */
 
-#bottom-ui{
-    width:100%;
-    height:15dvh; /* 全体の1.5割 */
-    position:relative;
-    z-index:10;
+#bottom-ui {
+    width: 100%;
+    height: 15dvh; /* 全体の1.5割 */
+    position: relative;
+    z-index: 10;
     flex-shrink: 0;
 }
 
 /* ================= MY TSUM ================= */
 
-#mytsum-btn{
-    position:absolute;
-    bottom:20px;
-    left:20px;
+#mytsum-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
 
-    width:56px;
-    height:56px;
+    width: 56px;
+    height: 56px;
 
-    background:
-    conic-gradient(
+    background: conic-gradient(
         from 0deg,
         #66ecff 0deg,
         #66ecff var(--skill-angle),
@@ -261,137 +255,134 @@ body{
         #173a96 360deg
     );
 
-    --skill-angle:0deg;
+    --skill-angle: 0deg;
 
-    border-radius:18px; 
-    border:3px solid rgba(255,255,255,0.95);
+    border-radius: 18px; 
+    border: 3px solid rgba(255,255,255,0.95);
 
-    overflow:visible;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     box-shadow:
-    inset 0 2px 5px rgba(255,255,255,0.4),
-    0 4px 6px rgba(0,0,0,0.3);
+        inset 0 2px 5px rgba(255,255,255,0.4),
+        0 4px 6px rgba(0,0,0,0.3);
 
-    z-index:1002;
+    z-index: 1002;
     transition: transform 0.2s ease-out;
 }
 
-#mytsum-btn img{
-    width:34px;
-    height:34px;
-    object-fit:contain;
+#mytsum-btn img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
     transition: filter 0.3s;
 }
 
 /* ================= FEVER ================= */
 
-#fever-container{
-    position:absolute;
-    left:100px;
-    right:100px;
-    bottom:32px;
-    height:32px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:1001;
+#fever-container {
+    position: absolute;
+    left: 100px;
+    right: 100px;
+    bottom: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
 }
 
-#fever-bar-bg{
-    position:relative;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    border-radius:999px;
+#fever-bar-bg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 999px;
 
-    background:
-    radial-gradient(
+    background: radial-gradient(
         circle at 30% 20%,
         #69dcff 0%,
         #2f8dd0 45%,
         #1f5ea6 100%
     );
 
-    border:3px solid rgba(255,255,255,0.9);
+    border: 3px solid rgba(255,255,255,0.9);
 
     box-shadow:
-    inset 0 2px 4px rgba(255,255,255,0.35),
-    0 4px 8px rgba(0,0,0,0.35);
+        inset 0 2px 4px rgba(255,255,255,0.35),
+        0 4px 8px rgba(0,0,0,0.35);
 }
 
-#fever-bar-fill{
-    position:absolute;
-    left:0;
-    top:0;
-    width:0%;
-    height:100%;
-    border-radius:999px;
+#fever-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
+    height: 100%;
+    border-radius: 999px;
 
-    background:
-    linear-gradient(
+    background: linear-gradient(
         to bottom,
         #ffd84d 0%,
         #ffb703 100%
     );
 
-    transition:width 0.1s linear;
+    transition: width 0.1s linear;
 }
 
-#fever-text{
-    position:absolute;
-    width:100%;
-    height:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    color:#ffffff;
-    font-size:15px;
-    font-weight:bold;
+#fever-text {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
 
     text-shadow:
-    0 0 6px rgba(0,0,0,0.8),
-    2px 2px 0px #003366;
+        0 0 6px rgba(0,0,0,0.8),
+        2px 2px 0px #003366;
 }
 
 /* ================= FAN ================= */
 
-#fan-btn{
-    position:absolute;
-    bottom:20px;
-    right:20px;
+#fan-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
 
-    width:56px;
-    height:56px;
+    width: 56px;
+    height: 56px;
 
-    background:
-    linear-gradient(
+    background: linear-gradient(
         to bottom,
         #ffd84d 0%,
         #ffb703 100%
     );
 
-    border-radius:18px;
-    border:3px solid rgba(255,255,255,0.95);
+    border-radius: 18px;
+    border: 3px solid rgba(255,255,255,0.95);
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     box-shadow:
-    inset 0 2px 5px rgba(255,255,255,0.4),
-    0 4px 6px rgba(0,0,0,0.3);
+        inset 0 2px 5px rgba(255,255,255,0.4),
+        0 4px 6px rgba(0,0,0,0.3);
 
-    z-index:1002;
-    cursor:pointer;
+    z-index: 1002;
+    cursor: pointer;
 }
 
-#fan-image{
-    width:34px;
-    height:34px;
-    object-fit:contain;
+#fan-image {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
 }
 
 </style>
@@ -461,13 +452,13 @@ const {
 const engine = Engine.create();
 
 const render = Render.create({
-    element:gameAreaBg,
-    engine:engine,
-    options:{
-        width:width,
-        height:height,
-        wireframes:false,
-        background:'transparent'
+    element: gameAreaBg,
+    engine: engine,
+    options: {
+        width: width,
+        height: height,
+        wireframes: false,
+        background: 'transparent'
     }
 });
 
@@ -521,13 +512,11 @@ let myTsumType = "";
 
 let isBgmStarted = false;
 
-// ユーザーの最初のアクション（画面クリック、タッチ、各種ボタン押下など）で確実にBGMを鳴らし始める処理
 function startFirstBgm() {
     if (isBgmStarted) return;
     if (!isPaused && !isFever) {
         normalBgm.play().then(() => {
             isBgmStarted = true;
-            // 再生成功したら全ウィンドウイベントを解除
             window.removeEventListener('click', startFirstBgm);
             window.removeEventListener('touchstart', startFirstBgm);
             window.removeEventListener('mousedown', startFirstBgm);
@@ -537,7 +526,6 @@ function startFirstBgm() {
     }
 }
 
-// 画面全体のどこを触ってもトリガーされるように設定
 window.addEventListener('click', startFirstBgm);
 window.addEventListener('touchstart', startFirstBgm);
 window.addEventListener('mousedown', startFirstBgm);
@@ -739,7 +727,7 @@ setInterval(() => {
 /* ================= PAUSE ================= */
 
 pauseBtn.onclick = () => {
-    startFirstBgm(); // アクションを契機にBGM開始を試みる
+    startFirstBgm();
     isPaused = !isPaused;
     if(isPaused){
         pauseBtn.innerText = "▶";
@@ -758,7 +746,7 @@ pauseBtn.onclick = () => {
 /* ================= FAN ================= */
 
 document.getElementById('fan-btn').onclick = () => {
-    startFirstBgm(); // 扇風機ボタンを押した際にも確実にBGM開始を試みる
+    startFirstBgm();
     engine.world.bodies.forEach(b => {
         if(!b.isStatic){
             Body.setPosition(b,{
@@ -778,7 +766,6 @@ Events.on(render,'afterRender',() => {
     if(selected.length > 0){
         const ctx = render.context;
         
-        // チェーンをつなぐ線の描画
         ctx.shadowBlur = 20;
         ctx.shadowColor = '#00e1ff';
         ctx.strokeStyle = '#a0f0ff';
@@ -792,7 +779,6 @@ Events.on(render,'afterRender',() => {
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // 最後端のツムの右上に現在のチェーン数をリアルタイム表示
         if(selected.length >= 2){
             const lastTsum = selected[selected.length - 1];
             
@@ -804,7 +790,6 @@ Events.on(render,'afterRender',() => {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            // 最後端ツムの座標から右上にオフセットした位置
             const textX = lastTsum.position.x + 25;
             const textY = lastTsum.position.y - 25;
             
@@ -817,20 +802,17 @@ Events.on(render,'afterRender',() => {
 
 const canvas = render.canvas;
 
-// ドラッグ/タッチ開始の共通処理
 function startDrag(e) {
-    startFirstBgm(); // ツムを触り始めた瞬間にも確実にBGM開始を試みる
+    startFirstBgm();
     if(isPaused) return;
     isDragging = true;
     selected = [];
     
-    // タッチスタート時にその位置のツムを即座に判定
     if(e.type === 'touchstart') {
         handleDragMove(e);
     }
 }
 
-// ドラッグ/タッチ終了の共通処理
 function endDrag() {
     if(isPaused) return;
 
@@ -874,14 +856,12 @@ function endDrag() {
             const myTsumRemoved = selected.filter(t => t.plugin.tsumType === myTsumType).length;
             const normalRemoved = selected.length - myTsumRemoved;
 
-            /* MYTSUM → SKILL */
             if(myTsumRemoved > 0){
                 skillGauge += myTsumRemoved;
                 if(skillGauge > SKILL_MAX) skillGauge = SKILL_MAX;
                 updateSkillGauge();
             }
 
-            /* NORMAL → FEVER */
             if(!isFever && normalRemoved > 0){
                 feverCount += normalRemoved;
                 if(feverCount > 30) feverCount = 30;
@@ -904,18 +884,15 @@ function endDrag() {
     isDragging = false;
 }
 
-// ドラッグ/タッチ移動時の共通処理（座標取得を分岐）
 function handleDragMove(e) {
     if(isPaused) return;
     if(!isDragging) return;
 
-    // 画面スクロールを抑止
     if (e.cancelable) e.preventDefault();
 
     const rect = canvas.getBoundingClientRect();
     let clientX, clientY;
 
-    // タッチイベントとマウスイベントの分岐
     if (e.touches && e.touches.length > 0) {
         clientX = e.touches[0].clientX;
         clientY = e.touches[0].clientY;
@@ -940,12 +917,10 @@ function handleDragMove(e) {
     }
 }
 
-// マウスイベント登録
 canvas.addEventListener('mousedown', startDrag);
 canvas.addEventListener('mouseup', endDrag);
 canvas.addEventListener('mousemove', handleDragMove);
 
-// タッチイベント登録（スクロール無効化のため passive: false を指定）
 canvas.addEventListener('touchstart', startDrag, { passive: false });
 canvas.addEventListener('touchend', endDrag, { passive: false });
 canvas.addEventListener('touchmove', handleDragMove, { passive: false });
