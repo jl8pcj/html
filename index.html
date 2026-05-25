@@ -754,6 +754,8 @@ let isDragging = false;
 Events.on(render,'afterRender',() => {
     if(selected.length > 0){
         const ctx = render.context;
+        
+        // チェーンをつなぐ線の描画
         ctx.shadowBlur = 20;
         ctx.shadowColor = '#00e1ff';
         ctx.strokeStyle = '#a0f0ff';
@@ -766,6 +768,27 @@ Events.on(render,'afterRender',() => {
         });
         ctx.stroke();
         ctx.shadowBlur = 0;
+
+        // 最後端のツムの右上に現在のチェーン数をリアルタイム表示
+        if(selected.length >= 2){
+            const lastTsum = selected[selected.length - 1];
+            
+            ctx.save();
+            ctx.font = 'italic bold 24px "Arial Black", sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#0055ff';
+            ctx.lineWidth = 5;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 最後端ツムの座標から右上にオフセットした位置
+            const textX = lastTsum.position.x + 25;
+            const textY = lastTsum.position.y - 25;
+            
+            ctx.strokeText(selected.length, textX, textY);
+            ctx.fillText(selected.length, textX, textY);
+            ctx.restore();
+        }
     }
 });
 
