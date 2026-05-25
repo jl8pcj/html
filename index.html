@@ -519,17 +519,28 @@ let myTsumType = "";
 
 /* ================= BGM START TRIGGER ================= */
 
-// スマホのタッチ操作（touchstart）でも確実に最初のオーディオ再生制限を解除して再生する処理
+let isBgmStarted = false;
+
+// ユーザーの最初のアクション（画面クリック、タッチ、各種ボタン押下など）で確実にBGMを鳴らし始める処理
 function startFirstBgm() {
-    if (normalBgm.paused && !isPaused && !isFever) {
-        normalBgm.play().catch(err => console.log("Audio play blocked:", err));
+    if (isBgmStarted) return;
+    if (!isPaused && !isFever) {
+        normalBgm.play().then(() => {
+            isBgmStarted = true;
+            // 再生成功したら全ウィンドウイベントを解除
+            window.removeEventListener('click', startFirstBgm);
+            window.removeEventListener('touchstart', startFirstBgm);
+            window.removeEventListener('mousedown', startFirstBgm);
+        }).catch(err => {
+            console.log("Audio play blocked by browser:", err);
+        });
     }
-    window.removeEventListener('click', startFirstBgm);
-    window.removeEventListener('touchstart', startFirstBgm);
 }
 
+// 画面全体のどこを触ってもトリガーされるように設定
 window.addEventListener('click', startFirstBgm);
 window.addEventListener('touchstart', startFirstBgm);
+window.addEventListener('mousedown', startFirstBgm);
 
 /* ================= SKILL ================= */
 
@@ -728,6 +739,7 @@ setInterval(() => {
 /* ================= PAUSE ================= */
 
 pauseBtn.onclick = () => {
+    startFirstBgm(); // アクションを契機にBGM開始を試みる
     isPaused = !isPaused;
     if(isPaused){
         pauseBtn.innerText = "▶";
@@ -746,6 +758,7 @@ pauseBtn.onclick = () => {
 /* ================= FAN ================= */
 
 document.getElementById('fan-btn').onclick = () => {
+    startFirstBgm(); // 扇風機ボタンを押した際にも確実にBGM開始を試みる
     engine.world.bodies.forEach(b => {
         if(!b.isStatic){
             Body.setPosition(b,{
@@ -806,6 +819,7 @@ const canvas = render.canvas;
 
 // ドラッグ/タッチ開始の共通処理
 function startDrag(e) {
+    startFirstBgm(); // ツムを触り始めた瞬間にも確実にBGM開始を試みる
     if(isPaused) return;
     isDragging = true;
     selected = [];
