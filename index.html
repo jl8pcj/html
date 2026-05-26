@@ -431,6 +431,14 @@ html, body {
 <audio id="normal-bgm" src="temshop.mp3" loop></audio>
 <audio id="fever-bgm" src="metal.mp3" loop></audio>
 
+<audio id="se-c" src="C.mp3"></audio>
+<audio id="se-d" src="D.mp3"></audio>
+<audio id="se-e" src="E.mp3"></audio>
+<audio id="se-f" src="F.mp3"></audio>
+<audio id="se-g" src="G.mp3"></audio>
+<audio id="se-a" src="A.mp3"></audio>
+<audio id="se-b" src="B.mp3"></audio>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 
 <script>
@@ -507,6 +515,17 @@ const startVoice = document.getElementById('start-voice');
 const timeupVoice = document.getElementById('timeup-voice');
 const normalBgm = document.getElementById('normal-bgm');
 const feverBgm = document.getElementById('fever-bgm');
+
+// チェーン数に応じたSEマッピング
+const chainSoundMap = {
+    2: document.getElementById('se-c'),
+    3: document.getElementById('se-d'),
+    4: document.getElementById('se-e'),
+    5: document.getElementById('se-f'),
+    6: document.getElementById('se-g'),
+    7: document.getElementById('se-a')
+};
+const defaultChainSound = document.getElementById('se-b'); // 8チェーン以上
 
 const scoreTable = {
     3:300, 4:700, 5:1300, 6:2100, 7:3100, 8:4600, 9:6100, 10:7600, 11:9600, 12:11600, 13:13600, 14:15600, 15:18100
@@ -975,12 +994,23 @@ function handleDragMove(e) {
 
     if(found && !found.isStatic){
         const last = selected[selected.length - 1];
-        if(
-            selected.length === 0 ||
-            (found.plugin.tsumType === last.plugin.tsumType && !selected.includes(found) && Vector.magnitude(Vector.sub(found.position, last.position)) < 80)
-        ){
+        if(selected.length === 0){
             selected.push(found);
+        } else if (found.plugin.tsumType === last.plugin.tsumType && !selected.includes(found) && Vector.magnitude(Vector.sub(found.position, last.position)) < 80) {
+            selected.push(found);
+            
+            // 新しくチェーンが繋がった瞬間にSEを再生
+            playChainSound(selected.length);
         }
+    }
+}
+
+// チェーン数に応じたSE再生処理
+function playChainSound(count) {
+    let sound = chainSoundMap[count] || (count >= 8 ? defaultChainSound : null);
+    if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(err => console.log("SE play blocked:", err));
     }
 }
 
