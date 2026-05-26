@@ -511,18 +511,28 @@ let myTsumType = "";
 /* ================= BGM START TRIGGER ================= */
 
 let isBgmStarted = false;
+let userHasInteracted = false; // ユーザーが画面操作を一度でも行ったかどうかのフラグ
+let tsumsSettled = false;      // ツムがすべて静止または底に到達したかどうかのフラグ
 
 function startFirstBgm() {
+    userHasInteracted = true; // ユーザーの操作（タッチ・クリック）を検知
+    tryPlayBgmIfReady();
+}
+
+// ツムの降下（静止）とユーザーのインタラクションの両方が揃ったら再生する
+function tryPlayBgmIfReady() {
     if (isBgmStarted) return;
-    if (!isPaused && !isFever) {
-        normalBgm.play().then(() => {
-            isBgmStarted = true;
-            window.removeEventListener('click', startFirstBgm);
-            window.removeEventListener('touchstart', startFirstBgm);
-            window.removeEventListener('mousedown', startFirstBgm);
-        }).catch(err => {
-            console.log("Audio play blocked by browser:", err);
-        });
+    if (userHasInteracted && tsumsSettled) {
+        if (!isPaused && !isFever) {
+            normalBgm.play().then(() => {
+                isBgmStarted = true;
+                window.removeEventListener('click', startFirstBgm);
+                window.removeEventListener('touchstart', startFirstBgm);
+                window.removeEventListener('mousedown', startFirstBgm);
+            }).catch(err => {
+                console.log("Audio play blocked by browser:", err);
+            });
+        }
     }
 }
 
@@ -648,6 +658,31 @@ function spawnTsums(){
 }
 
 spawnTsums();
+
+/* ================= MONITOR TSUM SETTLEMENT (降下しきったか判定) ================= */
+
+Events.on(engine, 'afterUpdate', () => {
+    if (tsumsSettled) return; // 既に判定完了している場合は何もしない
+
+    let allSettled = true;
+    const bodies = engine.world.bodies;
+
+    for (let i = 0; i < bodies.length; i++) {
+        const b = bodies[i];
+        if (!b.isStatic) {
+            // 速度(面内速度の絶対値)が一定値以上、または配置初期でまだ上空(y < 0)にいる場合は「まだ降下中」とみなす
+            if (b.speed > 0.8 || b.position.y < 0) {
+                allSettled = false;
+                break;
+            }
+        }
+    }
+
+    if (allSettled && bodies.filter(b => !b.isStatic).length >= 45) {
+        tsumsSettled = true; // すべてのツムが降下しきった
+        tryPlayBgmIfReady(); // 条件が整っていればBGM開始
+    }
+});
 
 /* ================= FEVER ================= */
 
