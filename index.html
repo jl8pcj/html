@@ -426,6 +426,7 @@ html, body {
 
 </div>
 
+<audio id="start-voice" src="go.wav"></audio>
 <audio id="normal-bgm" src="temshop.mp3" loop></audio>
 <audio id="fever-bgm" src="metal.mp3" loop></audio>
 
@@ -472,6 +473,8 @@ let comboTimer = null;
 
 let timeLeft = 60;
 let isPaused = false;
+let isVoicePlaying = false; // go.wav再生中フラグ
+let hasVoiceEndedOnce = false; // go.wavが一度でも終了したかどうかのフラグ
 
 let feverCount = 0;
 let isFever = false;
@@ -498,6 +501,7 @@ const feverText = document.getElementById('fever-text');
 const myTsumBtn = document.getElementById('mytsum-btn');
 const myTsumImg = document.getElementById('mytsum-image');
 
+const startVoice = document.getElementById('start-voice');
 const normalBgm = document.getElementById('normal-bgm');
 const feverBgm = document.getElementById('fever-bgm');
 
@@ -508,37 +512,51 @@ const scoreTable = {
 let activeImages = [];
 let myTsumType = "";
 
-/* ================= BGM START TRIGGER ================= */
+/* ================= AUDIO START TRIGGER ================= */
 
-let isBgmStarted = false;
-let userHasInteracted = false; // ユーザーが画面操作を一度でも行ったかどうかのフラグ
-let tsumsSettled = false;      // ツムがすべて静止または底に到達したかどうかのフラグ
+let isAudioStarted = false;
+let userHasInteracted = false; 
 
-function startFirstBgm() {
-    userHasInteracted = true; // ユーザーの操作（タッチ・クリック）を検知
-    tryPlayBgmIfReady();
+function handleUserInteraction() {
+    userHasInteracted = true; 
+    tryPlayAudioIfReady();
 }
 
-// ツムの降下（静止）とユーザーのインタラクションの両方が揃ったら再生する
-function tryPlayBgmIfReady() {
-    if (isBgmStarted) return;
-    if (userHasInteracted && tsumsSettled) {
+// ユーザー操作があれば、即座に go.wav を再生開始
+function tryPlayAudioIfReady() {
+    if (isAudioStarted) return;
+    if (userHasInteracted) {
         if (!isPaused && !isFever) {
-            normalBgm.play().then(() => {
-                isBgmStarted = true;
-                window.removeEventListener('click', startFirstBgm);
-                window.removeEventListener('touchstart', startFirstBgm);
-                window.removeEventListener('mousedown', startFirstBgm);
+            isVoicePlaying = true; // ボイス再生開始フラグを立てる（タイマー・操作をロック）
+            startVoice.play().then(() => {
+                isAudioStarted = true;
+
+                // イベントリスナーを解除
+                window.removeEventListener('click', handleUserInteraction);
+                window.removeEventListener('touchstart', handleUserInteraction);
+                window.removeEventListener('mousedown', handleUserInteraction);
             }).catch(err => {
                 console.log("Audio play blocked by browser:", err);
+                isVoicePlaying = false; // 再生失敗時はロックを解除
             });
         }
     }
 }
 
-window.addEventListener('click', startFirstBgm);
-window.addEventListener('touchstart', startFirstBgm);
-window.addEventListener('mousedown', startFirstBgm);
+// go.wav の再生が終了したらフラグを戻し、temshop.mp3 を開始
+startVoice.addEventListener('ended', () => {
+    isVoicePlaying = false; // ボイス終了により、操作受付を解禁
+    hasVoiceEndedOnce = true; // 初回再生終了フラグを立てて、カウントダウン開始を許可
+    if (!isPaused && !isFever) {
+        normalBgm.play().catch(err => {
+            console.log("BGM play blocked:", err);
+        });
+    }
+});
+
+window.addEventListener('click', handleUserInteraction);
+window.addEventListener('touchstart', handleUserInteraction);
+window.addEventListener('mousedown', handleUserInteraction);
 
 /* ================= SKILL ================= */
 
@@ -659,31 +677,6 @@ function spawnTsums(){
 
 spawnTsums();
 
-/* ================= MONITOR TSUM SETTLEMENT (降下しきったか判定) ================= */
-
-Events.on(engine, 'afterUpdate', () => {
-    if (tsumsSettled) return; // 既に判定完了している場合は何もしない
-
-    let allSettled = true;
-    const bodies = engine.world.bodies;
-
-    for (let i = 0; i < bodies.length; i++) {
-        const b = bodies[i];
-        if (!b.isStatic) {
-            // 速度(面内速度の絶対値)が一定値以上、または配置初期でまだ上空(y < 0)にいる場合は「まだ降下中」とみなす
-            if (b.speed > 0.8 || b.position.y < 0) {
-                allSettled = false;
-                break;
-            }
-        }
-    }
-
-    if (allSettled && bodies.filter(b => !b.isStatic).length >= 45) {
-        tsumsSettled = true; // すべてのツムが降下しきった
-        tryPlayBgmIfReady(); // 条件が整っていればBGM開始
-    }
-});
-
 /* ================= FEVER ================= */
 
 function updateFeverBar(){
@@ -711,13 +704,15 @@ function startFever(){
     inset 0 0 80px rgba(255,180,0,0.8)
     `;
 
+    startVoice.pause();
     normalBgm.pause();
     feverBgm.currentTime = 0;
     feverBgm.play();
 
     clearInterval(feverInterval);
     feverInterval = setInterval(() => {
-        if(isPaused) return;
+        // ポーズ中、またはgo.wavの初回再生が終わっていない場合は減少させない
+        if(isPaused || !hasVoiceEndedOnce || isVoicePlaying) return; 
         feverTimeLeft -= 0.1;
         if(feverTimeLeft < 0) feverTimeLeft = 0;
         feverCount = (feverTimeLeft / FEVER_TIME) * 30;
@@ -751,7 +746,8 @@ function endFever(){
 /* ================= TIMER ================= */
 
 setInterval(() => {
-    if(!isPaused && timeLeft > 0){
+    // ポーズ中でなく、かつ「初回go.wavが鳴り終わった後」のみタイムカウントを行う
+    if(!isPaused && hasVoiceEndedOnce && !isVoicePlaying && timeLeft > 0){
         timeLeft--;
         timeDisplay.innerText = timeLeft;
         const angle = (timeLeft / 60) * 360;
@@ -762,10 +758,11 @@ setInterval(() => {
 /* ================= PAUSE ================= */
 
 pauseBtn.onclick = () => {
-    startFirstBgm();
+    handleUserInteraction();
     isPaused = !isPaused;
     if(isPaused){
         pauseBtn.innerText = "▶";
+        startVoice.pause();
         normalBgm.pause();
         feverBgm.pause();
     }else{
@@ -773,7 +770,11 @@ pauseBtn.onclick = () => {
         if(isFever){
             feverBgm.play();
         }else{
-            normalBgm.play();
+            if (startVoice.currentTime > 0 && !startVoice.ended) {
+                startVoice.play();
+            } else {
+                normalBgm.play();
+            }
         }
     }
 };
@@ -781,7 +782,8 @@ pauseBtn.onclick = () => {
 /* ================= FAN ================= */
 
 document.getElementById('fan-btn').onclick = () => {
-    startFirstBgm();
+    handleUserInteraction();
+    if(isVoicePlaying) return; // go.wav再生中は操作を受け付けない
     engine.world.bodies.forEach(b => {
         if(!b.isStatic){
             Body.setPosition(b,{
@@ -838,8 +840,8 @@ Events.on(render,'afterRender',() => {
 const canvas = render.canvas;
 
 function startDrag(e) {
-    startFirstBgm();
-    if(isPaused) return;
+    handleUserInteraction();
+    if(isPaused || isVoicePlaying) return; // ポーズ中、またはgo.wav再生中は操作を受け付けない
     isDragging = true;
     selected = [];
     
@@ -849,7 +851,7 @@ function startDrag(e) {
 }
 
 function endDrag() {
-    if(isPaused) return;
+    if(isPaused || isVoicePlaying) return; // ポーズ中、またはgo.wav再生中は操作を受け付けない
 
     if(selected.length >= 3){
         const type = selected[0].plugin.tsumType;
@@ -920,7 +922,7 @@ function endDrag() {
 }
 
 function handleDragMove(e) {
-    if(isPaused) return;
+    if(isPaused || isVoicePlaying) return; // ポーズ中、またはgo.wav再生中は操作を受け付けない
     if(!isDragging) return;
 
     if (e.cancelable) e.preventDefault();
