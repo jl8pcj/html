@@ -427,6 +427,7 @@ html, body {
 </div>
 
 <audio id="start-voice" src="go.wav"></audio>
+<audio id="timeup-voice" src="timeup.wav"></audio>
 <audio id="normal-bgm" src="temshop.mp3" loop></audio>
 <audio id="fever-bgm" src="metal.mp3" loop></audio>
 
@@ -475,6 +476,7 @@ let timeLeft = 60;
 let isPaused = false;
 let isVoicePlaying = false; // go.wav再生中フラグ
 let hasVoiceEndedOnce = false; // go.wavが一度でも終了したかどうかのフラグ
+let isGameOver = false; // タイムアップフラグ
 
 let feverCount = 0;
 let isFever = false;
@@ -502,6 +504,7 @@ const myTsumBtn = document.getElementById('mytsum-btn');
 const myTsumImg = document.getElementById('mytsum-image');
 
 const startVoice = document.getElementById('start-voice');
+const timeupVoice = document.getElementById('timeup-voice');
 const normalBgm = document.getElementById('normal-bgm');
 const feverBgm = document.getElementById('fever-bgm');
 
@@ -526,7 +529,7 @@ function handleUserInteraction() {
 function tryPlayAudioIfReady() {
     if (isAudioStarted) return;
     if (userHasInteracted) {
-        if (!isPaused && !isFever) {
+        if (!isPaused && !isFever && !isGameOver) {
             isVoicePlaying = true; // ボイス再生開始フラグを立てる（タイマー・操作をロック）
             startVoice.play().then(() => {
                 isAudioStarted = true;
@@ -547,7 +550,7 @@ function tryPlayAudioIfReady() {
 startVoice.addEventListener('ended', () => {
     isVoicePlaying = false; // ボイス終了により、操作受付を解禁
     hasVoiceEndedOnce = true; // 初回再生終了フラグを立てて、カウントダウン開始を許可
-    if (!isPaused && !isFever) {
+    if (!isPaused && !isFever && !isGameOver) {
         normalBgm.play().catch(err => {
             console.log("BGM play blocked:", err);
         });
@@ -680,6 +683,7 @@ spawnTsums();
 /* ================= FEVER ================= */
 
 function updateFeverBar(){
+    if (isGameOver) return;
     const percent = Math.min((feverCount / 30) * 100, 100);
     feverBarFill.style.width = percent + "%";
 
@@ -711,8 +715,7 @@ function startFever(){
 
     clearInterval(feverInterval);
     feverInterval = setInterval(() => {
-        // ポーズ中、またはgo.wavの初回再生が終わっていない場合は減少させない
-        if(isPaused || !hasVoiceEndedOnce || isVoicePlaying) return; 
+        if(isPaused || !hasVoiceEndedOnce || isVoicePlaying || isGameOver) return; 
         feverTimeLeft -= 0.1;
         if(feverTimeLeft < 0) feverTimeLeft = 0;
         feverCount = (feverTimeLeft / FEVER_TIME) * 30;
@@ -721,7 +724,7 @@ function startFever(){
 
     clearTimeout(feverTimer);
     feverTimer = setTimeout(() => {
-        endFever();
+        if (!isGameOver) endFever();
     },FEVER_TIME * 1000);
 }
 
@@ -740,24 +743,51 @@ function endFever(){
 
     feverBgm.pause();
     feverBgm.currentTime = 0;
-    normalBgm.play();
+    if (!isGameOver) normalBgm.play();
 }
 
-/* ================= TIMER ================= */
+/* ================= TIMER & TIME UP ================= */
 
-setInterval(() => {
-    // ポーズ中でなく、かつ「初回go.wavが鳴り終わった後」のみタイムカウントを行う
-    if(!isPaused && hasVoiceEndedOnce && !isVoicePlaying && timeLeft > 0){
+const timerInterval = setInterval(() => {
+    if(!isPaused && hasVoiceEndedOnce && !isVoicePlaying && !isGameOver && timeLeft > 0){
         timeLeft--;
         timeDisplay.innerText = timeLeft;
         const angle = (timeLeft / 60) * 360;
         timeBox.style.setProperty('--timer-angle', angle);
+
+        if(timeLeft <= 0){
+            triggerTimeUp();
+        }
     }
 },1000);
+
+function triggerTimeUp() {
+    isGameOver = true;
+    clearInterval(timerInterval);
+    clearInterval(feverInterval);
+    clearTimeout(feverTimer);
+
+    // BGMの完全停止
+    normalBgm.pause();
+    feverBgm.pause();
+    startVoice.pause();
+
+    // timeup.wav の再生
+    timeupVoice.currentTime = 0;
+    timeupVoice.play().catch(err => console.log("Timeup audio play blocked:", err));
+
+    // UIをタイムアップ表示に変更
+    timeDisplay.innerText = "0";
+    
+    // 選択中のチェーンを強制クリア
+    selected = [];
+    isDragging = false;
+}
 
 /* ================= PAUSE ================= */
 
 pauseBtn.onclick = () => {
+    if (isGameOver) return; // タイムアップ後はポーズ不可
     handleUserInteraction();
     isPaused = !isPaused;
     if(isPaused){
@@ -782,8 +812,8 @@ pauseBtn.onclick = () => {
 /* ================= FAN ================= */
 
 document.getElementById('fan-btn').onclick = () => {
+    if(isVoicePlaying || isGameOver || isPaused) return; // タイムアップ後、再生中、ポーズ中は操作不可
     handleUserInteraction();
-    if(isVoicePlaying) return; // go.wav再生中は操作を受け付けない
     engine.world.bodies.forEach(b => {
         if(!b.isStatic){
             Body.setPosition(b,{
@@ -841,7 +871,7 @@ const canvas = render.canvas;
 
 function startDrag(e) {
     handleUserInteraction();
-    if(isPaused || isVoicePlaying) return; // ポーズ中、またはgo.wav再生中は操作を受け付けない
+    if(isPaused || isVoicePlaying || isGameOver) return; // タイムアップ後も操作を受け付けない
     isDragging = true;
     selected = [];
     
@@ -851,7 +881,7 @@ function startDrag(e) {
 }
 
 function endDrag() {
-    if(isPaused || isVoicePlaying) return; // ポーズ中、またはgo.wav再生中は操作を受け付けない
+    if(isPaused || isVoicePlaying || isGameOver) return; // タイムアップ後も操作を受け付けない
 
     if(selected.length >= 3){
         const type = selected[0].plugin.tsumType;
@@ -922,7 +952,7 @@ function endDrag() {
 }
 
 function handleDragMove(e) {
-    if(isPaused || isVoicePlaying) return; // ポーズ中、またはgo.wav再生中は操作を受け付けない
+    if(isPaused || isVoicePlaying || isGameOver) return; // タイムアップ後も操作を受け付けない
     if(!isDragging) return;
 
     if (e.cancelable) e.preventDefault();
