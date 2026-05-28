@@ -20,10 +20,10 @@ html, body {
 
 #game-container {
     position: absolute;
-    top: 0; /* ブラウザの最上部から描画 */
+    top: 0;
     left: 0;
     width: 100vw;
-    height: 100dvh; /* 画面全体の高さを完全にカバー */
+    height: 100dvh;
 
     background-image: url('bg.jpg');
     background-size: cover;
@@ -38,7 +38,7 @@ html, body {
 
 #top-ui {
     width: 100%;
-    height: 15dvh; /* 全体の1.5割 */
+    height: 15dvh;
     z-index: 10;
     display: flex;
     justify-content: center;
@@ -165,7 +165,7 @@ html, body {
 
 #game-area-bg {
     width: 100%;
-    height: 70dvh; /* 全体の7割 */
+    height: 70dvh;
     flex-shrink: 0;
 
     background: radial-gradient(
@@ -227,11 +227,49 @@ html, body {
     text-shadow: 1px 1px 2px #000;
 }
 
+/* ================= SKILL EFFECT LAYER ================= */
+
+#skill-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5000;
+    pointer-events: none;
+    display: none;
+}
+
+#gaster-blaster {
+    position: absolute;
+    top: -150px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.5);
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#gaster-beam {
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 114px; /* 横幅をツム2個分（半径28px×4 = 112px付近）に修正 */
+    height: 0px;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 20%, rgba(255,255,255,1) 80%, rgba(255,255,255,0) 100%);
+    box-shadow: 0 0 30px 15px #ffffff, 0 0 50px 30px #00bfff;
+    opacity: 0;
+    transition: height 0.15s ease-in, opacity 0.1s ease-in;
+}
+
 /* ================= BOTTOM UI ================= */
 
 #bottom-ui {
     width: 100%;
-    height: 15dvh; /* 全体の1.5割 */
+    height: 15dvh;
     position: relative;
     z-index: 10;
     flex-shrink: 0;
@@ -271,6 +309,7 @@ html, body {
 
     z-index: 1002;
     transition: transform 0.2s ease-out;
+    cursor: pointer;
 }
 
 #mytsum-btn img {
@@ -407,6 +446,11 @@ html, body {
             <span id="combo-count">0</span>
             <span id="combo-label">COMBO</span>
         </div>
+        
+        <div id="skill-overlay">
+            <img id="gaster-blaster" src="6s.png">
+            <div id="gaster-beam"></div>
+        </div>
     </div>
 
     <div id="bottom-ui">
@@ -482,9 +526,10 @@ let comboTimer = null;
 
 let timeLeft = 60;
 let isPaused = false;
-let isVoicePlaying = false; // go.wav再生中フラグ
-let hasVoiceEndedOnce = false; // go.wavが一度でも終了したかどうかのフラグ
-let isGameOver = false; // タイムアップフラグ
+let isVoicePlaying = false;
+let hasVoiceEndedOnce = false;
+let isGameOver = false;
+let isSkillExecuting = false;
 
 let feverCount = 0;
 let isFever = false;
@@ -495,10 +540,10 @@ let feverTimeLeft = FEVER_TIME;
 let feverInterval = null;
 let feverTimer = null;
 
-/* SKILL */
+/* SKILL (TEST MODE: MAX 3) */
 let skillGauge = 0;
 let isSkillFull = false;
-const SKILL_MAX = 30;
+const SKILL_MAX = 3; 
 
 const scoreDisplay = document.getElementById('score-display');
 const comboContainer = document.getElementById('combo-container');
@@ -516,7 +561,10 @@ const timeupVoice = document.getElementById('timeup-voice');
 const normalBgm = document.getElementById('normal-bgm');
 const feverBgm = document.getElementById('fever-bgm');
 
-// チェーン数に応じたSEマッピング
+const skillOverlay = document.getElementById('skill-overlay');
+const gasterBlaster = document.getElementById('gaster-blaster');
+const gasterBeam = document.getElementById('gaster-beam');
+
 const chainSoundMap = {
     2: document.getElementById('se-c'),
     3: document.getElementById('se-d'),
@@ -525,7 +573,7 @@ const chainSoundMap = {
     6: document.getElementById('se-g'),
     7: document.getElementById('se-a')
 };
-const defaultChainSound = document.getElementById('se-b'); // 8チェーン以上
+const defaultChainSound = document.getElementById('se-b');
 
 const scoreTable = {
     3:300, 4:700, 5:1300, 6:2100, 7:3100, 8:4600, 9:6100, 10:7600, 11:9600, 12:11600, 13:13600, 14:15600, 15:18100
@@ -544,31 +592,27 @@ function handleUserInteraction() {
     tryPlayAudioIfReady();
 }
 
-// ユーザー操作があれば、即座に go.wav を再生開始
 function tryPlayAudioIfReady() {
     if (isAudioStarted) return;
     if (userHasInteracted) {
         if (!isPaused && !isFever && !isGameOver) {
-            isVoicePlaying = true; // ボイス再生開始フラグを立てる（タイマー・操作をロック）
+            isVoicePlaying = true;
             startVoice.play().then(() => {
                 isAudioStarted = true;
-
-                // イベントリスナーを解除
                 window.removeEventListener('click', handleUserInteraction);
                 window.removeEventListener('touchstart', handleUserInteraction);
                 window.removeEventListener('mousedown', handleUserInteraction);
             }).catch(err => {
                 console.log("Audio play blocked by browser:", err);
-                isVoicePlaying = false; // 再生失敗時はロックを解除
+                isVoicePlaying = false;
             });
         }
     }
 }
 
-// go.wav の再生が終了したらフラグを戻し、temshop.mp3 を開始
 startVoice.addEventListener('ended', () => {
-    isVoicePlaying = false; // ボイス終了により、操作受付を解禁
-    hasVoiceEndedOnce = true; // 初回再生終了フラグを立てて、カウントダウン開始を許可
+    isVoicePlaying = false;
+    hasVoiceEndedOnce = true;
     if (!isPaused && !isFever && !isGameOver) {
         normalBgm.play().catch(err => {
             console.log("BGM play blocked:", err);
@@ -591,6 +635,7 @@ function updateSkillGauge(){
         triggerFullGaugeEffect();
     } else if (skillGauge < SKILL_MAX) {
         isSkillFull = false;
+        myTsumImg.style.filter = 'brightness(100%)';
     }
 }
 
@@ -600,8 +645,98 @@ function triggerFullGaugeEffect() {
     
     setTimeout(() => {
         myTsumBtn.style.transform = 'scale(1)';
-        myTsumImg.style.filter = 'brightness(100%)';
     }, 300);
+}
+
+myTsumBtn.onclick = (e) => {
+    e.stopPropagation();
+    handleUserInteraction();
+    
+    if (isSkillFull && !isSkillExecuting && !isGameOver && !isPaused && !isVoicePlaying) {
+        activateGasterBlaster();
+    }
+};
+
+/* ================= GASTER BLASTER SKILL EXECUTION ================= */
+
+function activateGasterBlaster() {
+    isSkillExecuting = true;
+    skillGauge = 0;
+    isSkillFull = false;
+    updateSkillGauge();
+    
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display = 'block';
+    
+    setTimeout(() => {
+        gasterBlaster.style.top = '10px';
+        gasterBlaster.style.opacity = '1';
+        gasterBlaster.style.transform = 'translateX(-50%) scale(1)';
+    }, 50);
+
+    setTimeout(() => {
+        gasterBeam.style.opacity = '1';
+        gasterBeam.style.height = (height - 100) + 'px';
+    }, 450);
+
+    // ビームの判定幅も「ツム2個分」の範囲に修正
+    setTimeout(() => {
+        const beamLeft = width / 2 - 57;  // 114pxの半分
+        const beamRight = width / 2 + 57; // 114pxの半分
+        
+        let targetBodies = [];
+        engine.world.bodies.forEach(b => {
+            if (!b.isStatic && b.position.x >= beamLeft && b.position.x <= beamRight) {
+                targetBodies.push(b);
+            }
+        });
+
+        const eliminatedCount = targetBodies.length;
+
+        if (eliminatedCount > 0) {
+            const baseScore = scoreTable[Math.min(eliminatedCount, 15)] || (eliminatedCount * 1500);
+            let finalScore = Math.floor(baseScore * (1 + (comboCount + 10) / 100));
+            if (isFever) finalScore *= 3;
+            
+            score += finalScore;
+            scoreDisplay.innerText = Math.floor(score).toLocaleString();
+
+            if (!isFever) {
+                feverCount += eliminatedCount;
+                if (feverCount > 30) feverCount = 30;
+                updateFeverBar();
+            }
+
+            targetBodies.forEach(b => {
+                Composite.remove(engine.world, b);
+            });
+
+            for (let i = 0; i < eliminatedCount; i++) {
+                Composite.add(
+                    engine.world,
+                    createTsum(Math.random() * (width - 80) + 40, -50)
+                );
+            }
+        }
+    }, 600);
+
+    setTimeout(() => {
+        gasterBeam.style.opacity = '0';
+    }, 850);
+
+    setTimeout(() => {
+        gasterBlaster.style.top = '-150px';
+        gasterBlaster.style.opacity = '0';
+        gasterBlaster.style.transform = 'translateX(-50%) scale(0.5)';
+    }, 950);
+
+    setTimeout(() => {
+        gasterBeam.style.height = '0px';
+        skillOverlay.style.display = 'none';
+        isSkillExecuting = false;
+    }, 1250);
 }
 
 /* ================= EFFECT ================= */
@@ -646,12 +781,18 @@ function createGaugeEffect(x,y,target){
 /* ================= TSUM ================= */
 
 function selectTsums(){
-    activeImages =
-    Array.from({length:14}, (_,i)=>`${i+1}.png`)
-    .sort(()=>0.5-Math.random())
-    .slice(0,5);
+    activeImages = [
+        '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png',
+        '8.png', '9.png', '10.png', '11.png', '12.png', '13.png', '14.png'
+    ];
+    
+    activeImages = activeImages.filter(img => img !== '6.png')
+                               .sort(() => 0.5 - Math.random())
+                               .slice(0, 4);
+    activeImages.push('6.png');
+    activeImages.sort(() => 0.5 - Math.random());
 
-    myTsumType = activeImages[Math.floor(Math.random()*activeImages.length)];
+    myTsumType = '6.png';
     myTsumImg.src = myTsumType;
 }
 
@@ -786,19 +927,15 @@ function triggerTimeUp() {
     clearInterval(feverInterval);
     clearTimeout(feverTimer);
 
-    // BGMの完全停止
     normalBgm.pause();
     feverBgm.pause();
     startVoice.pause();
 
-    // timeup.wav の再生
     timeupVoice.currentTime = 0;
     timeupVoice.play().catch(err => console.log("Timeup audio play blocked:", err));
 
-    // UIをタイムアップ表示に変更
     timeDisplay.innerText = "0";
     
-    // 選択中のチェーンを強制クリア
     selected = [];
     isDragging = false;
 }
@@ -806,7 +943,7 @@ function triggerTimeUp() {
 /* ================= PAUSE ================= */
 
 pauseBtn.onclick = () => {
-    if (isGameOver) return; // タイムアップ後はポーズ不可
+    if (isGameOver || isSkillExecuting) return; 
     handleUserInteraction();
     isPaused = !isPaused;
     if(isPaused){
@@ -831,7 +968,7 @@ pauseBtn.onclick = () => {
 /* ================= FAN ================= */
 
 document.getElementById('fan-btn').onclick = () => {
-    if(isVoicePlaying || isGameOver || isPaused) return; // タイムアップ後、再生中、ポーズ中は操作不可
+    if(isVoicePlaying || isGameOver || isPaused || isSkillExecuting) return; 
     handleUserInteraction();
     engine.world.bodies.forEach(b => {
         if(!b.isStatic){
@@ -890,7 +1027,7 @@ const canvas = render.canvas;
 
 function startDrag(e) {
     handleUserInteraction();
-    if(isPaused || isVoicePlaying || isGameOver) return; // タイムアップ後も操作を受け付けない
+    if(isPaused || isVoicePlaying || isGameOver || isSkillExecuting) return; 
     isDragging = true;
     selected = [];
     
@@ -900,7 +1037,7 @@ function startDrag(e) {
 }
 
 function endDrag() {
-    if(isPaused || isVoicePlaying || isGameOver) return; // タイムアップ後も操作を受け付けない
+    if(isPaused || isVoicePlaying || isGameOver || isSkillExecuting) return; 
 
     if(selected.length >= 3){
         const type = selected[0].plugin.tsumType;
@@ -971,7 +1108,7 @@ function endDrag() {
 }
 
 function handleDragMove(e) {
-    if(isPaused || isVoicePlaying || isGameOver) return; // タイムアップ後も操作を受け付けない
+    if(isPaused || isVoicePlaying || isGameOver || isSkillExecuting) return; 
     if(!isDragging) return;
 
     if (e.cancelable) e.preventDefault();
@@ -998,14 +1135,11 @@ function handleDragMove(e) {
             selected.push(found);
         } else if (found.plugin.tsumType === last.plugin.tsumType && !selected.includes(found) && Vector.magnitude(Vector.sub(found.position, last.position)) < 80) {
             selected.push(found);
-            
-            // 新しくチェーンが繋がった瞬間にSEを再生
             playChainSound(selected.length);
         }
     }
 }
 
-// チェーン数に応じたSE再生処理
 function playChainSound(count) {
     let sound = chainSoundMap[count] || (count >= 8 ? defaultChainSound : null);
     if (sound) {
