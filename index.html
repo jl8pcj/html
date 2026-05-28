@@ -227,7 +227,7 @@ html, body {
     text-shadow: 1px 1px 2px #000;
 }
 
-/* ================= SKILL EFFECT LAYER ================= */
+/* ================= MULTI SKILL LAYER ================= */
 
 #skill-overlay {
     position: absolute;
@@ -238,31 +238,91 @@ html, body {
     z-index: 5000;
     pointer-events: none;
     display: none;
+    background: transparent;
+    transition: background 0.2s ease;
 }
 
-#gaster-blaster {
+/* 11s.png (アズゴア武器) */
+#asgore-weapon {
     position: absolute;
-    top: -150px;
-    left: 50%;
-    transform: translateX(-50%) scale(0.5);
-    width: 160px;
-    height: 160px;
+    top: 50%;
+    left: -580px; 
+    transform: translateY(-50%);
+    width: 560px;  
+    height: 560px; 
     object-fit: contain;
     opacity: 0;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
 }
 
-#gaster-beam {
+/* アズゴア斬撃ライン */
+#asgore-slash {
     position: absolute;
-    top: 100px;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 0px;
+    background: linear-gradient(to bottom, rgba(255,50,50,0) 0%, rgba(255,200,50,1) 30%, rgba(255,255,255,1) 50%, rgba(255,200,50,1) 70%, rgba(255,50,50,0) 100%);
+    box-shadow: 0 0 25px 10px #ff3300;
+    opacity: 0;
+    transition: height 0.1s ease, opacity 0.1s ease;
+}
+
+/* 5s.png (パピルス骨演出用) */
+#papyrus-weapon {
+    position: absolute;
+    top: 65%; 
+    left: 100%; 
+    transform: translateY(-50%);
+    width: 140px;  
+    height: 140px; 
+    object-fit: contain;
+    opacity: 0;
+    transition: left 3.2s linear, opacity 0.2s ease;
+}
+
+/* 6s.png (サンズ・ガスターブラスター) */
+#sans-blaster {
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    transform: translate(-50%, -100%) scale(0);
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+    z-index: 5002;
+}
+
+/* サンズ・縦レーザー */
+#sans-laser {
+    position: absolute;
+    top: 100px; 
     left: 50%;
     transform: translateX(-50%);
-    width: 114px; /* 横幅をツム2個分（半径28px×4 = 112px付近）に修正 */
-    height: 0px;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 20%, rgba(255,255,255,1) 80%, rgba(255,255,255,0) 100%);
-    box-shadow: 0 0 30px 15px #ffffff, 0 0 50px 30px #00bfff;
+    width: 0px;
+    height: calc(100% - 100px); 
+    background: linear-gradient(to right, rgba(0,150,255,0) 0%, rgba(100,220,255,1) 30%, rgba(255,255,255,1) 50%, rgba(100,220,255,1) 70%, rgba(0,150,255,0) 100%);
+    box-shadow: 0 0 35px 15px #00bfff;
     opacity: 0;
-    transition: height 0.15s ease-in, opacity 0.1s ease-in;
+    transition: width 0.1s ease, opacity 0.1s ease;
+    z-index: 5001;
+}
+
+/* 8s.png (8.pngスキル用ポップアップアセット) */
+#custom-eight-weapon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 220px;
+    height: 220px;
+    object-fit: contain;
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.25), opacity 0.3s ease;
+    z-index: 5003;
 }
 
 /* ================= BOTTOM UI ================= */
@@ -448,8 +508,15 @@ html, body {
         </div>
         
         <div id="skill-overlay">
-            <img id="gaster-blaster" src="6s.png">
-            <div id="gaster-beam"></div>
+            <img id="asgore-weapon" src="11s.png">
+            <div id="asgore-slash"></div>
+            
+            <img id="papyrus-weapon" src="5s.png">
+            
+            <img id="sans-blaster" src="6s.png">
+            <div id="sans-laser"></div>
+
+            <img id="custom-eight-weapon" src="8s.png">
         </div>
     </div>
 
@@ -562,8 +629,12 @@ const normalBgm = document.getElementById('normal-bgm');
 const feverBgm = document.getElementById('fever-bgm');
 
 const skillOverlay = document.getElementById('skill-overlay');
-const gasterBlaster = document.getElementById('gaster-blaster');
-const gasterBeam = document.getElementById('gaster-beam');
+const asgoreWeapon = document.getElementById('asgore-weapon');
+const asgoreSlash = document.getElementById('asgore-slash');
+const papyrusWeapon = document.getElementById('papyrus-weapon');
+const sansBlaster = document.getElementById('sans-blaster');
+const sansLaser = document.getElementById('sans-laser');
+const customEightWeapon = document.getElementById('custom-eight-weapon');
 
 const chainSoundMap = {
     2: document.getElementById('se-c'),
@@ -624,7 +695,7 @@ window.addEventListener('click', handleUserInteraction);
 window.addEventListener('touchstart', handleUserInteraction);
 window.addEventListener('mousedown', handleUserInteraction);
 
-/* ================= SKILL ================= */
+/* ================= SKILL GAUGE ================= */
 
 function updateSkillGauge(){
     const angle = (skillGauge / SKILL_MAX) * 360;
@@ -653,13 +724,190 @@ myTsumBtn.onclick = (e) => {
     handleUserInteraction();
     
     if (isSkillFull && !isSkillExecuting && !isGameOver && !isPaused && !isVoicePlaying) {
-        activateGasterBlaster();
+        // マイツムの種類に応じて各スキル関数を呼び出す
+        if (myTsumType === '11.png') {
+            activateAsgoreSkill();
+        } else if (myTsumType === '5.png') {
+            activatePapyrusSkill();
+        } else if (myTsumType === '6.png') {
+            activateSansSkill();
+        } else if (myTsumType === '8.png') {
+            activateEightSkill();
+        }
     }
 };
 
-/* ================= GASTER BLASTER SKILL EXECUTION ================= */
+/* =================共通スコア＆消去処理 ================= */
+function processSkillElimination(targetBodies) {
+    const eliminatedCount = targetBodies.length;
+    if (eliminatedCount <= 0) return;
 
-function activateGasterBlaster() {
+    const baseScore = scoreTable[Math.min(eliminatedCount, 15)] || (eliminatedCount * 1500);
+    let finalScore = Math.floor(baseScore * (1 + (comboCount + 10) / 100));
+    if (isFever) finalScore *= 3;
+    
+    score += finalScore;
+    scoreDisplay.innerText = Math.floor(score).toLocaleString();
+
+    if (!isFever) {
+        feverCount += eliminatedCount;
+        if (feverCount > 30) feverCount = 30;
+        updateFeverBar();
+    }
+
+    targetBodies.forEach(b => {
+        Composite.remove(engine.world, b);
+    });
+
+    for (let i = 0; i < eliminatedCount; i++) {
+        Composite.add(
+            engine.world,
+            createTsum(Math.random() * (width - 80) + 40, -50)
+        );
+    }
+}
+
+/* ================= 11.png: アズゴア スキル ================= */
+function activateAsgoreSkill() {
+    isSkillExecuting = true;
+    skillGauge = 0;
+    isSkillFull = false;
+    updateSkillGauge();
+    
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display = 'block';
+    asgoreWeapon.style.left = '-580px';
+    
+    setTimeout(() => {
+        asgoreWeapon.style.opacity = '1';
+        asgoreWeapon.style.left = (width - 560) + 'px'; 
+    }, 50);
+
+    setTimeout(() => {
+        asgoreSlash.style.opacity = '1';
+        asgoreSlash.style.height = '114px'; 
+        
+        const centerY = height / 2;
+        const lineTop = centerY - 57;
+        const lineBottom = centerY + 57;
+        
+        let targetBodies = [];
+        engine.world.bodies.forEach(b => {
+            if (!b.isStatic && b.position.y >= lineTop && b.position.y <= lineBottom) {
+                targetBodies.push(b);
+            }
+        });
+
+        processSkillElimination(targetBodies);
+    }, 850);
+
+    setTimeout(() => {
+        asgoreSlash.style.opacity = '0';
+        asgoreWeapon.style.left = '-580px'; 
+    }, 1100);
+
+    setTimeout(() => {
+        asgoreWeapon.style.opacity = '0';
+        asgoreSlash.style.height = '0px';
+        skillOverlay.style.display = 'none';
+        isSkillExecuting = false;
+    }, 2000);
+}
+
+/* ================= 5.png: パピルス スキル ================= */
+function activatePapyrusSkill() {
+    isSkillExecuting = true;
+    skillGauge = 0;
+    isSkillFull = false;
+    updateSkillGauge();
+    
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display = 'block';
+    papyrusWeapon.style.left = '100%'; 
+    
+    setTimeout(() => {
+        papyrusWeapon.style.opacity = '1';
+        papyrusWeapon.style.left = '-160px'; 
+    }, 50);
+
+    setTimeout(() => {
+        const lineY = height * 0.65;
+        const lineTop = lineY - 56;    
+        const lineBottom = lineY + 56;
+        
+        let targetBodies = [];
+        engine.world.bodies.forEach(b => {
+            if (!b.isStatic && b.position.y >= lineTop && b.position.y <= lineBottom) {
+                targetBodies.push(b);
+            }
+        });
+
+        processSkillElimination(targetBodies);
+    }, 950); 
+
+    setTimeout(() => {
+        papyrusWeapon.style.opacity = '0';
+        skillOverlay.style.display = 'none';
+        isSkillExecuting = false;
+    }, 3300);
+}
+
+/* ================= 6.png: サンズ スキル ================= */
+function activateSansSkill() {
+    isSkillExecuting = true;
+    skillGauge = 0;
+    isSkillFull = false;
+    updateSkillGauge();
+    
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display = 'block';
+    skillOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+    
+    setTimeout(() => {
+        sansBlaster.style.opacity = '1';
+        sansBlaster.style.transform = 'translate(-50%, 0%) scale(1)';
+    }, 50);
+
+    setTimeout(() => {
+        sansLaser.style.opacity = '1';
+        sansLaser.style.width = '70px'; 
+
+        const centerX = width / 2;
+        const lineLeft = centerX - 35;  
+        const lineRight = centerX + 35;
+        
+        let targetBodies = [];
+        engine.world.bodies.forEach(b => {
+            if (!b.isStatic && b.position.x >= lineLeft && b.position.x <= lineRight) {
+                targetBodies.push(b);
+            }
+        });
+
+        processSkillElimination(targetBodies);
+    }, 450);
+
+    setTimeout(() => {
+        sansLaser.style.opacity = '0';
+        sansBlaster.style.transform = 'translate(-50%, -100%) scale(0)';
+        sansBlaster.style.opacity = '0';
+        skillOverlay.style.backgroundColor = 'transparent';
+    }, 950);
+
+    setTimeout(() => {
+        sansLaser.style.width = '0px';
+        skillOverlay.style.display = 'none';
+        isSkillExecuting = false;
+    }, 1200);
+}
+
+/* ================= 8.png: 新スキル (全ツム変化) ================= */
+function activateEightSkill() {
     isSkillExecuting = true;
     skillGauge = 0;
     isSkillFull = false;
@@ -670,73 +918,29 @@ function activateGasterBlaster() {
 
     skillOverlay.style.display = 'block';
     
+    // 8s.png を中央にポップアップ
     setTimeout(() => {
-        gasterBlaster.style.top = '10px';
-        gasterBlaster.style.opacity = '1';
-        gasterBlaster.style.transform = 'translateX(-50%) scale(1)';
+        customEightWeapon.style.opacity = '1';
+        customEightWeapon.style.transform = 'translate(-50%, -50%) scale(1.1)';
     }, 50);
 
+    // 演出終了（縮小しながら消滅＆フィールド上のツム全変化）
     setTimeout(() => {
-        gasterBeam.style.opacity = '1';
-        gasterBeam.style.height = (height - 100) + 'px';
-    }, 450);
+        customEightWeapon.style.transform = 'translate(-50%, -50%) scale(0)';
+        customEightWeapon.style.opacity = '0';
 
-    // ビームの判定幅も「ツム2個分」の範囲に修正
-    setTimeout(() => {
-        const beamLeft = width / 2 - 57;  // 114pxの半分
-        const beamRight = width / 2 + 57; // 114pxの半分
-        
-        let targetBodies = [];
         engine.world.bodies.forEach(b => {
-            if (!b.isStatic && b.position.x >= beamLeft && b.position.x <= beamRight) {
-                targetBodies.push(b);
+            if (!b.isStatic && b.plugin && b.plugin.tsumType) {
+                b.plugin.tsumType = '8.png';
+                b.render.sprite.texture = '8.png';
             }
         });
-
-        const eliminatedCount = targetBodies.length;
-
-        if (eliminatedCount > 0) {
-            const baseScore = scoreTable[Math.min(eliminatedCount, 15)] || (eliminatedCount * 1500);
-            let finalScore = Math.floor(baseScore * (1 + (comboCount + 10) / 100));
-            if (isFever) finalScore *= 3;
-            
-            score += finalScore;
-            scoreDisplay.innerText = Math.floor(score).toLocaleString();
-
-            if (!isFever) {
-                feverCount += eliminatedCount;
-                if (feverCount > 30) feverCount = 30;
-                updateFeverBar();
-            }
-
-            targetBodies.forEach(b => {
-                Composite.remove(engine.world, b);
-            });
-
-            for (let i = 0; i < eliminatedCount; i++) {
-                Composite.add(
-                    engine.world,
-                    createTsum(Math.random() * (width - 80) + 40, -50)
-                );
-            }
-        }
-    }, 600);
+    }, 900);
 
     setTimeout(() => {
-        gasterBeam.style.opacity = '0';
-    }, 850);
-
-    setTimeout(() => {
-        gasterBlaster.style.top = '-150px';
-        gasterBlaster.style.opacity = '0';
-        gasterBlaster.style.transform = 'translateX(-50%) scale(0.5)';
-    }, 950);
-
-    setTimeout(() => {
-        gasterBeam.style.height = '0px';
         skillOverlay.style.display = 'none';
         isSkillExecuting = false;
-    }, 1250);
+    }, 1200);
 }
 
 /* ================= EFFECT ================= */
@@ -786,13 +990,16 @@ function selectTsums(){
         '8.png', '9.png', '10.png', '11.png', '12.png', '13.png', '14.png'
     ];
     
-    activeImages = activeImages.filter(img => img !== '6.png')
+    // スキル対象プールに全4キャラを含める
+    const skillPool = ['5.png', '6.png', '11.png', '8.png'];
+    myTsumType = skillPool[Math.floor(Math.random() * skillPool.length)];
+
+    let remain = activeImages.filter(img => img !== myTsumType)
                                .sort(() => 0.5 - Math.random())
                                .slice(0, 4);
-    activeImages.push('6.png');
-    activeImages.sort(() => 0.5 - Math.random());
+    remain.push(myTsumType);
+    activeImages = remain.sort(() => 0.5 - Math.random());
 
-    myTsumType = '6.png';
     myTsumImg.src = myTsumType;
 }
 
