@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tsum Tsum Style Game</title>
+
+<style>
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #02080a;
+    overflow: hidden;
+    font-family: 'Arial Black', sans-serif;
+    touch-action: none;
+}
+
+#game-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+
+    background-image: url('bg.jpg');
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ================= TOP UI ================= */
+
+#top-ui {
+    width: 100%;
+    height: 15dvh;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    position: relative;
+    flex-shrink: 0;
+}
+
+#score-oval {
+    width: 160px;
+    height: 35px;
+
+    background: radial-gradient(
+        circle at 30% 20%,
+        #69dcff 0%,
+        #2f8dd0 45%,
+        #1f5ea6 100%
+    );
+
+    border-radius: 999px;
+    border: 3px solid rgba(255,255,255,0.9);
+
+    box-shadow:
+        inset 0 2px 4px rgba(255,255,255,0.35),
+        0 4px 8px rgba(0,0,0,0.35);
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 12px;
+}
+
+#score-display {
+    font-size: 20px;
+    color: #ffffff;
+    font-weight: bold;
+
+    text-shadow:
+        0 0 6px rgba(0,0,0,0.8),
+        2px 2px 0px #003366;
+}
+
+/* ================= TIME ================= */
+
+#time-box {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 55px;
+    height: 55px;
+
+    background: conic-gradient(
+        from 0deg,
+        #173a96 0deg,
+        #173a96 calc(360deg - (var(--timer-angle) * 1deg)),
+        #66ecff calc(360deg - (var(--timer-angle) * 1deg)),
+        #66ecff 360deg
+    );
+
+    border-radius: 18px;
+    border: 3px solid rgba(255,255,255,0.95);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffffff;
+
+    box-shadow:
+        inset 0 2px 5px rgba(255,255,255,0.25),
+        0 4px 6px rgba(0,0,0,0.3);
+
+    z-index: 2000;
+    --timer-angle: 360;
+}
+
+#time-display {
+    text-shadow: 0 0 6px rgba(0,0,0,0.7);
+}
+
+/* ================= PAUSE ================= */
+
+#pause-btn {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 55px;
+    height: 55px;
+
+    background: linear-gradient(
+        to bottom,
+        #ffd84d 0%,
+        #ffb703 100%
+    );
+
+    border-radius: 18px;
+    border: 3px solid rgba(255,255,255,0.95);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 28px;
+    font-weight: bold;
+    color: #7a4b00;
+
+    box-shadow:
+        inset 0 2px 5px rgba(255,255,255,0.4),
+        0 4px 6px rgba(0,0,0,0.3);
+
+    z-index: 2000;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+/* ================= PLAY AREA ================= */
+
+#game-area-bg {
+    width: 100%;
+    height: 70dvh;
+    flex-shrink: 0;
+
+    background: radial-gradient(
+        circle at 50% 35%,
+        #274fba 0%,
+        #173a96 45%,
+        #0c256f 100%
+    );
+
+    border-radius: 200px / 120px;
+    z-index: 1;
+    position: relative;
+
+    box-shadow:
+        inset 0 8px 20px rgba(255,255,255,0.12),
+        inset 0 -10px 20px rgba(0,0,0,0.35);
+
+    overflow: hidden;
+}
+
+#matter-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+}
+
+/* ================= COMBO ================= */
+
+#combo-container {
+    position: absolute;
+    top: 30px;
+    right: 20px;
+
+    text-align: center;
+    color: #fff;
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+#combo-count {
+    font-size: 40px;
+    font-style: italic;
+    display: block;
+    line-height: 1;
+
+    text-shadow:
+        0 0 10px #00e1ff,
+        2px 2px 2px #000;
+}
+
+#combo-label {
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* ================= MULTI SKILL LAYER ================= */
+
+#skill-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5000;
+    pointer-events: none;
+    display: none;
+    background: transparent;
+    transition: background 0.2s ease;
+}
+
+/* 11s.png (アズゴア武器) */
+#asgore-weapon {
+    position: absolute;
+    top: 50%;
+    left: -580px; 
+    transform: translateY(-50%);
+    width: 560px;  
+    height: 560px; 
+    object-fit: contain;
+    opacity: 0;
+    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+}
+
+/* アズゴア斬撃ライン */
+#asgore-slash {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 0px;
+    background: linear-gradient(to bottom, rgba(255,50,50,0) 0%, rgba(255,200,50,1) 30%, rgba(255,255,255,1) 50%, rgba(255,200,50,1) 70%, rgba(255,50,50,0) 100%);
+    box-shadow: 0 0 25px 10px #ff3300;
+    opacity: 0;
+    transition: height 0.1s ease, opacity 0.1s ease;
+}
+
+/* 5s.png (パピルス骨演出用) */
+#papyrus-weapon {
+    position: absolute;
+    top: 65%; 
+    left: 100%; 
+    transform: translateY(-50%);
+    width: 140px;  
+    height: 140px; 
+    object-fit: contain;
+    opacity: 0;
+    transition: left 3.2s linear, opacity 0.2s ease;
+}
+
+/* 6s.png (サンズ・ガスターブラスター) */
+#sans-blaster {
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    transform: translate(-50%, -100%) scale(0);
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+    z-index: 5002;
+}
+
+/* サンズ・縦レーザー */
+#sans-laser {
+    position: absolute;
+    top: 100px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0px;
+    height: calc(100% - 100px); 
+    background: linear-gradient(to right, rgba(0,150,255,0) 0%, rgba(100,220,255,1) 30%, rgba(255,255,255,1) 50%, rgba(100,220,255,1) 70%, rgba(0,150,255,0) 100%);
+    box-shadow: 0 0 35px 15px #00bfff;
+    opacity: 0;
+    transition: width 0.1s ease, opacity 0.1s ease;
+    z-index: 5001;
+}
+
+/* 8s.png (8.pngスキル用ポップアップアセット) */
+#custom-eight-weapon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 220px;
+    height: 220px;
+    object-fit: contain;
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.25), opacity 0.3s ease;
+    z-index: 5003;
+}
+
+/* ================= BOTTOM UI ================= */
+
+#bottom-ui {
+    width: 100%;
+    height: 15dvh;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+/* ================= MY TSUM ================= */
+
+#mytsum-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+
+    width: 56px;
+    height: 56px;
+
+    background: conic-gradient(
+        from 0deg,
+        #66ecff 0deg,
+        #66ecff var(--skill-angle),
+        #173a96 var(--skill-angle),
+        #173a96 360deg
+    );
+
+    --skill-angle: 0deg;
+
+    border-radius: 18px; 
+    border: 3px solid rgba(255,255,255,0.95);
+
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-shadow:
+        inset 0 2px 5px rgba(255,255,255,0.4),
+        0 4px 6px rgba(0,0,0,0.3);
+
+    z-index: 1002;
+    transition: transform 0.2s ease-out;
+    cursor: pointer;
+}
+
+#mytsum-btn img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    transition: filter 0.3s;
+}
+
+/* ================= FEVER ================= */
+
+#fever-container {
+    position: absolute;
+    left: 100px;
+    right: 100px;
+    bottom: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+}
+
+#fever-bar-bg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 999px;
+
+    background: radial-gradient(
+        circle at 30% 20%,
+        #69dcff 0%,
+        #2f8dd0 45%,
+        #1f5ea6 100%
+    );
+
+    border: 3px solid rgba(255,255,255,0.9);
+
+    box-shadow:
+        inset 0 2px 4px rgba(255,255,255,0.35),
+        0 4px 8px rgba(0,0,0,0.35);
+}
+
+#fever-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
+    height: 100%;
+    border-radius: 999px;
+
+    background: linear-gradient(
+        to bottom,
+        #ffd84d 0%,
+        #ffb703 100%
+    );
+
+    transition: width 0.1s linear;
+}
+
+#fever-text {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+
+    text-shadow:
+        0 0 6px rgba(0,0,0,0.8),
+        2px 2px 0px #003366;
+}
+
+/* ================= FAN ================= */
+
+#fan-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+
+    width: 56px;
+    height: 56px;
+
+    background: linear-gradient(
+        to bottom,
+        #ffd84d 0%,
+        #ffb703 100%
+    );
+
+    border-radius: 18px;
+    border: 3px solid rgba(255,255,255,0.95);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-shadow:
+        inset 0 2px 5px rgba(255,255,255,0.4),
+        0 4px 6px rgba(0,0,0,0.3);
+
+    z-index: 1002;
+    cursor: pointer;
+}
+
+#fan-image {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="game-container">
+
+    <div id="top-ui">
+        <div id="time-box">
+            <span id="time-display">60</span>
+        </div>
+        <div id="score-oval">
+            <div id="score-display">0</div>
+        </div>
+        <div id="pause-btn">Ⅱ</div>
+    </div>
+
+    <div id="game-area-bg">
+        <div id="combo-container">
+            <span id="combo-count">0</span>
+            <span id="combo-label">COMBO</span>
+        </div>
+        
+        <div id="skill-overlay">
+            <img id="asgore-weapon" src="11s.png">
+            <div id="asgore-slash"></div>
+            
+            <img id="papyrus-weapon" src="5s.png">
+            
+            <img id="sans-blaster" src="6s.png">
+            <div id="sans-laser"></div>
+
+            <img id="custom-eight-weapon" src="8s.png">
+        </div>
+    </div>
+
+    <div id="bottom-ui">
+        <div id="mytsum-btn">
+            <img id="mytsum-image" src="">
+        </div>
+        <div id="fever-container">
+            <div id="fever-bar-bg">
+                <div id="fever-bar-fill"></div>
+                <div id="fever-text">FEVER</div>
+            </div>
+        </div>
+        <div id="fan-btn">
+            <img src="Fun.png" id="fan-image">
+        </div>
+    </div>
+
+</div>
+
+<audio id="start-voice" src="go.wav"></audio>
+<audio id="timeup-voice" src="timeup.wav"></audio>
+<audio id="normal-bgm" src="temshop.mp3" loop></audio>
+<audio id="fever-bgm" src="metal.mp3" loop></audio>
+
+<audio id="se-c" src="C.mp3"></audio>
+<audio id="se-d" src="D.mp3"></audio>
+<audio id="se-e" src="E.mp3"></audio>
+<audio id="se-f" src="F.mp3"></audio>
+<audio id="se-g" src="G.mp3"></audio>
+<audio id="se-a" src="A.mp3"></audio>
+<audio id="se-b" src="B.mp3"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+<script>
+
+const gameAreaBg = document.getElementById('game-area-bg');
+const width = gameAreaBg.clientWidth;
+const height = gameAreaBg.clientHeight;
+
+const {
+    Engine,
+    Render,
+    Runner,
+    Bodies,
+    Composite,
+    Query,
+    Vector,
+    Events,
+    Body
+} = Matter;
+
+const engine = Engine.create();
+
+const render = Render.create({
+    element: gameAreaBg,
+    engine: engine,
+    options: {
+        width: width,
+        height: height,
+        wireframes: false,
+        background: 'transparent'
+    }
+});
+
+render.canvas.id = "matter-canvas";
+
+/* ================= VARIABLES ================= */
+
+let score = 0;
+let comboCount = 0;
+let comboTimer = null;
+
+let timeLeft = 60;
+let isPaused = false;
+let isVoicePlaying = false;
+let hasVoiceEndedOnce = false;
+let isGameOver = false;
+let isSkillExecuting = false;
+
+let feverCount = 0;
+let isFever = false;
+
+const FEVER_TIME = 14;
+
+let feverTimeLeft = FEVER_TIME;
+let feverInterval = null;
+let feverTimer = null;
+
+/* SKILL (TEST MODE: MAX 3) */
+let skillGauge = 0;
+let isSkillFull = false;
+const SKILL_MAX = 3; 
+
+const scoreDisplay = document.getElementById('score-display');
+const comboContainer = document.getElementById('combo-container');
+const comboCountText = document.getElementById('combo-count');
+const timeDisplay = document.getElementById('time-display');
+const pauseBtn = document.getElementById('pause-btn');
+const timeBox = document.getElementById('time-box');
+const feverBarFill = document.getElementById('fever-bar-fill');
+const feverText = document.getElementById('fever-text');
+const myTsumBtn = document.getElementById('mytsum-btn');
+const myTsumImg = document.getElementById('mytsum-image');
+
+const startVoice = document.getElementById('start-voice');
+const timeupVoice = document.getElementById('timeup-voice');
+const normalBgm = document.getElementById('normal-bgm');
+const feverBgm = document.getElementById('fever-bgm');
+
+const skillOverlay = document.getElementById('skill-overlay');
+const asgoreWeapon = document.getElementById('asgore-weapon');
+const asgoreSlash = document.getElementById('asgore-slash');
+const papyrusWeapon = document.getElementById('papyrus-weapon');
+const sansBlaster = document.getElementById('sans-blaster');
+const sansLaser = document.getElementById('sans-laser');
+const customEightWeapon = document.getElementById('custom-eight-weapon');
+
+const chainSoundMap = {
+    2: document.getElementById('se-c'),
+    3: document.getElementById('se-d'),
+    4: document.getElementById('se-e'),
+    5: document.getElementById('se-f'),
+    6: document.getElementById('se-g'),
+    7: document.getElementById('se-a')
+};
+const defaultChainSound = document.getElementById('se-b');
+
+const scoreTable = {
+    3:300, 4:700, 5:1300, 6:2100, 7:3100, 8:4600, 9:6100, 10:7600, 11:9600, 12:11600, 13:13600, 14:15600, 15:18100
+};
+
+let activeImages = [];
+let myTsumType = "";
+
+/* ================= AUDIO START TRIGGER ================= */
+
+let isAudioStarted = false;
+let userHasInteracted = false; 
+
+function handleUserInteraction() {
+    userHasInteracted = true; 
+    tryPlayAudioIfReady();
+}
+
+function tryPlayAudioIfReady() {
+    if (isAudioStarted) return;
+    if (userHasInteracted) {
+        if (!isPaused && !isFever && !isGameOver) {
+            isVoicePlaying = true;
+            startVoice.play().then(() => {
+                isAudioStarted = true;
+                window.removeEventListener('click', handleUserInteraction);
+                window.removeEventListener('touchstart', handleUserInteraction);
+                window.removeEventListener('mousedown', handleUserInteraction);
+            }).catch(err => {
+                console.log("Audio play blocked by browser:", err);
+                isVoicePlaying = false;
+            });
+        }
+    }
+}
+
+startVoice.addEventListener('ended', () => {
+    isVoicePlaying = false;
+    hasVoiceEndedOnce = true;
+    if (!isPaused && !isFever && !isGameOver) {
+        normalBgm.play().catch(err => {
+            console.log("BGM play blocked:", err);
+        });
+    }
+});
+
+window.addEventListener('click', handleUserInteraction);
+window.addEventListener('touchstart', handleUserInteraction);
+window.addEventListener('mousedown', handleUserInteraction);
+
+/* ================= SKILL GAUGE ================= */
+
+function updateSkillGauge(){
+    const angle = (skillGauge / SKILL_MAX) * 360;
+    myTsumBtn.style.setProperty('--skill-angle', angle + 'deg');
+
+    if (skillGauge >= SKILL_MAX && !isSkillFull) {
+        isSkillFull = true;
+        triggerFullGaugeEffect();
+    } else if (skillGauge < SKILL_MAX) {
+        isSkillFull = false;
+        myTsumImg.style.filter = 'brightness(100%)';
+    }
+}
+
+function triggerFullGaugeEffect() {
+    myTsumBtn.style.transform = 'scale(1.1)';
+    myTsumImg.style.filter = 'brightness(200%) drop-shadow(0 0 10px white)';
+    
+    setTimeout(() => {
+        myTsumBtn.style.transform = 'scale(1)';
+    }, 300);
+}
+
+myTsumBtn.onclick = (e) => {
+    e.stopPropagation();
+    handleUserInteraction();
+    
+    if (isSkillFull && !isSkillExecuting && !isGameOver && !isPaused && !isVoicePlaying) {
+        // マイツムの種類に応じて各スキル関数を呼び出す
+        if (myTsumType === '11.png') {
+            activateAsgoreSkill();
+        } else if (myTsumType === '5.png') {
+            activatePapyrusSkill();
+        } else if (myTsumType === '6.png') {
+            activateSansSkill();
+        } else if (myTsumType === '8.png') {
+            activateEightSkill();
+        }
+    }
+};
+
+/* =================共通スコア＆消去処理 ================= */
+function processSkillElimination(targetBodies) {
+    const eliminatedCount = targetBodies.length;
+    if (eliminatedCount <= 0) return;
+
+    const baseScore = scoreTable[Math.min(eliminatedCount, 15)] || (eliminatedCount * 1500);
+    let finalScore = Math.floor(baseScore * (1 + (comboCount + 10) / 100));
+    if (isFever) finalScore *= 3;
+    
+    score += finalScore;
+    scoreDisplay.innerText = Math.floor(score).toLocaleString();
+
+    if (!isFever) {
+        feverCount += eliminatedCount;
+        if (feverCount > 30) feverCount = 30;
+        updateFeverBar();
+    }
+
+    targetBodies.forEach(b => {
+        Composite.remove(engine.world, b);
+    });
+
+    for (let i = 0; i < eliminatedCount; i++) {
+        Composite.add(
+            engine.world,
+            createTsum(Math.random() * (width - 80) + 40, -50)
+        );
+    }
+}
+
+/* ================= 11.png: アズゴア スキル ================= */
+function activateAsgoreSkill() {
+    isSkillExecuting = true;
+    skillGauge = 0;
+    isSkillFull = false;
+    updateSkillGauge();
+    
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display = 'block';
+    asgoreWeapon.style.left = '-580px';
+    
+    setTimeout(() => {
+        asgoreWeapon.style.opacity = '1';
+        asgoreWeapon.style.left = (width - 560) + 'px'; 
+    }, 50);
+
+    setTimeout(() => {
+        asgoreSlash.style.opacity = '1';
+        asgoreSlash.style.height = '114px'; 
+        
+        const centerY = height / 2;
+        const lineTop = centerY - 57;
+        const lineBottom = centerY + 57;
+        
+        let targetBodies = [];
+        engine.world.bodies.forEach(b => {
+            if (!b.isStatic && b.position.y >= lineTop && b.position.y <= lineBottom) {
+                targetBodies.push(b);
+            }
+        });
+
+        processSkillElimination(targetBodies);
+    }, 850);
+
+    setTimeout(() => {
+        asgoreSlash.style.opacity = '0';
+        asgoreWeapon.style.left = '-580px'; 
+    }, 1100);
+
+    setTimeout(() => {
+        asgoreWeapon.style.opacity = '0';
+        asgoreSlash.style.height = '0px';
+        skillOverlay.style.display = 'none';
+        isSkillExecuting = false;
+    }, 2000);
+}
+
+/* ================= 5.png: パピルス スキル ================= */
+function activatePapyrusSkill() {
+    isSkillExecuting = true;
+    skillGauge = 0;
+    isSkillFull = false;
+    updateSkillGauge();
+    
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display = 'block';
+    papyrusWeapon.style.left = '100%'; 
+    
+    setTimeout(() => {
+        papyrusWeapon.style.opacity = '1';
+        papyrusWeapon.style.left = '-160px'; 
+    }, 50);
+
+    setTimeout(() => {
+        const lineY = height * 0.65;
+        const lineTop = lineY - 56;    
+        const lineBottom = lineY + 56;
+        
+        let targetBodies = [];
+        engine.world.bodies.forEach(b => {
+            if (!b.isStatic && b.position.y >= lineTop && b.position.y <= lineBottom) {
+                targetBodies.push(b);
+            }
+        });
+
+        processSkillElimination(targetBodies);
+    }, 950); 
+
+    setTimeout(() => {
+        papyrusWeapon.style.opacity = '0';
+        skillOverlay.style.display = 'none';
+        isSkillExecuting = false;
+    }, 3300);
+}
+
+/* ================= 6.png: サンズ スキル ================= */
+function activateSansSkill() {
+    isSkillExecuting = true;
+    skillGauge = 0;
+    isSkillFull = false;
+    updateSkillGauge();
+    
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display = 'block';
+    skillOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+    
+    setTimeout(() => {
+        sansBlaster.style.opacity = '1';
+        sansBlaster.style.transform = 'translate(-50%, 0%) scale(1)';
+    }, 50);
+
+    setTimeout(() => {
+        sansLaser.style.opacity = '1';
+        sansLaser.style.width = '70px'; 
+
+        const centerX = width / 2;
+        const lineLeft = centerX - 35;  
+        const lineRight = centerX + 35;
+        
+        let targetBodies = [];
+        engine.world.bodies.forEach(b => {
+            if (!b.isStatic && b.position.x >= lineLeft && b.position.x <= lineRight) {
+                targetBodies.push(b);
+            }
+        });
+
+        processSkillElimination(targetBodies);
+    }, 450);
+
+    setTimeout(() => {
+        sansLaser.style.opacity = '0';
+        sansBlaster.style.transform = 'translate(-50%, -100%) scale(0)';
+        sansBlaster.style.opacity = '0';
+        skillOverlay.style.backgroundColor = 'transparent';
+    }, 950);
+
+    setTimeout(() => {
+        sansLaser.style.width = '0px';
+        skillOverlay.style.display = 'none';
+        isSkillExecuting = false;
+    }, 1200);
+}
+
+/* ================= 8.png: 新スキル (全ツム変化) ================= */
+function activateEightSkill() {
+    isSkillExecuting = true;
+    skillGauge = 0;
+    isSkillFull = false;
+    updateSkillGauge();
+    
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display = 'block';
+    
+    // 8s.png を中央にポップアップ
+    setTimeout(() => {
+        customEightWeapon.style.opacity = '1';
+        customEightWeapon.style.transform = 'translate(-50%, -50%) scale(1.1)';
+    }, 50);
+
+    // 演出終了（縮小しながら消滅＆フィールド上のツム全変化）
+    setTimeout(() => {
+        customEightWeapon.style.transform = 'translate(-50%, -50%) scale(0)';
+        customEightWeapon.style.opacity = '0';
+
+        engine.world.bodies.forEach(b => {
+            if (!b.isStatic && b.plugin && b.plugin.tsumType) {
+                b.plugin.tsumType = '8.png';
+                b.render.sprite.texture = '8.png';
+            }
+        });
+    }, 900);
+
+    setTimeout(() => {
+        skillOverlay.style.display = 'none';
+        isSkillExecuting = false;
+    }, 1200);
+}
+
+/* ================= EFFECT ================= */
+
+function createGaugeEffect(x,y,target){
+    const el = document.createElement('img');
+    if(target === 'fever'){
+        el.src = '1.png';
+    }else{
+        el.src = myTsumType;
+    }
+
+    el.style.position = 'absolute';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.width = '35px';
+    el.style.height = '35px';
+    el.style.pointerEvents = 'none';
+    el.style.zIndex = '5000';
+    el.style.transition = 'all 0.45s ease';
+
+    document.getElementById('game-container').appendChild(el);
+
+    let targetRect = target === 'fever'
+        ? document.getElementById('fever-container').getBoundingClientRect()
+        : myTsumBtn.getBoundingClientRect();
+
+    const containerRect = document.getElementById('game-container').getBoundingClientRect();
+
+    setTimeout(()=>{
+        el.style.left = (targetRect.left - containerRect.left + 10) + 'px';
+        el.style.top = (targetRect.top - containerRect.top + 10) + 'px';
+        el.style.transform = 'scale(0.3)';
+        el.style.opacity = '0';
+    },10);
+
+    setTimeout(()=>{
+        el.remove();
+    },500);
+}
+
+/* ================= TSUM ================= */
+
+function selectTsums(){
+    activeImages = [
+        '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png',
+        '8.png', '9.png', '10.png', '11.png', '12.png', '13.png', '14.png'
+    ];
+    
+    // スキル対象プールに全4キャラを含める
+    const skillPool = ['5.png', '6.png', '11.png', '8.png'];
+    myTsumType = skillPool[Math.floor(Math.random() * skillPool.length)];
+
+    let remain = activeImages.filter(img => img !== myTsumType)
+                               .sort(() => 0.5 - Math.random())
+                               .slice(0, 4);
+    remain.push(myTsumType);
+    activeImages = remain.sort(() => 0.5 - Math.random());
+
+    myTsumImg.src = myTsumType;
+}
+
+selectTsums();
+
+function createTsum(x,y){
+    const type = activeImages[Math.floor(Math.random()*activeImages.length)];
+    return Bodies.circle(x,y,28,{
+        restitution:0.2,
+        friction:0.1,
+        render:{
+            sprite:{
+                texture:type,
+                xScale:0.45,
+                yScale:0.45
+            }
+        },
+        plugin:{
+            tsumType:type
+        }
+    });
+}
+
+/* ================= WALL ================= */
+
+Composite.add(engine.world,[
+    Bodies.rectangle(10, height/2, 20, height, {isStatic:true,render:{visible:false}}),
+    Bodies.rectangle(width - 10, height/2, 20, height, {isStatic:true,render:{visible:false}}),
+    Bodies.rectangle(width/2, height - 10, width, 20, {isStatic:true,render:{visible:false}}),
+    Bodies.rectangle(55, height - 35, 70, 20, {isStatic:true,render:{visible:false},angle:0.8}),
+    Bodies.rectangle(width - 55, height - 35, 70, 20, {isStatic:true,render:{visible:false},angle:-0.8})
+]);
+
+function spawnTsums(){
+    for(let i=0;i<45;i++){
+        Composite.add(
+            engine.world,
+            createTsum(
+                Math.random()*(width-80)+40,
+                Math.random()*-400
+            )
+        );
+    }
+}
+
+spawnTsums();
+
+/* ================= FEVER ================= */
+
+function updateFeverBar(){
+    if (isGameOver) return;
+    const percent = Math.min((feverCount / 30) * 100, 100);
+    feverBarFill.style.width = percent + "%";
+
+    if(percent >= 100 && !isFever){
+        startFever();
+    }
+}
+
+function startFever(){
+    isFever = true;
+    feverCount = 30;
+    feverTimeLeft = FEVER_TIME;
+    feverBarFill.style.width = "100%";
+    feverText.innerText = "FEVER!!";
+    timeLeft += 5;
+
+    if(timeLeft > 99) timeLeft = 99;
+
+    document.getElementById('game-area-bg').style.boxShadow =
+    `
+    inset 0 0 40px rgba(255,255,0,0.9),
+    inset 0 0 80px rgba(255,180,0,0.8)
+    `;
+
+    startVoice.pause();
+    normalBgm.pause();
+    feverBgm.currentTime = 0;
+    feverBgm.play();
+
+    clearInterval(feverInterval);
+    feverInterval = setInterval(() => {
+        if(isPaused || !hasVoiceEndedOnce || isVoicePlaying || isGameOver) return; 
+        feverTimeLeft -= 0.1;
+        if(feverTimeLeft < 0) feverTimeLeft = 0;
+        feverCount = (feverTimeLeft / FEVER_TIME) * 30;
+        updateFeverBar();
+    },100);
+
+    clearTimeout(feverTimer);
+    feverTimer = setTimeout(() => {
+        if (!isGameOver) endFever();
+    },FEVER_TIME * 1000);
+}
+
+function endFever(){
+    clearInterval(feverInterval);
+    isFever = false;
+    feverCount = 0;
+    updateFeverBar();
+    feverText.innerText = "FEVER";
+
+    document.getElementById('game-area-bg').style.boxShadow =
+    `
+    inset 0 8px 20px rgba(255,255,255,0.12),
+    inset 0 -10px 20px rgba(0,0,0,0.35)
+    `;
+
+    feverBgm.pause();
+    feverBgm.currentTime = 0;
+    if (!isGameOver) normalBgm.play();
+}
+
+/* ================= TIMER & TIME UP ================= */
+
+const timerInterval = setInterval(() => {
+    if(!isPaused && hasVoiceEndedOnce && !isVoicePlaying && !isGameOver && timeLeft > 0){
+        timeLeft--;
+        timeDisplay.innerText = timeLeft;
+        const angle = (timeLeft / 60) * 360;
+        timeBox.style.setProperty('--timer-angle', angle);
+
+        if(timeLeft <= 0){
+            triggerTimeUp();
+        }
+    }
+},1000);
+
+function triggerTimeUp() {
+    isGameOver = true;
+    clearInterval(timerInterval);
+    clearInterval(feverInterval);
+    clearTimeout(feverTimer);
+
+    normalBgm.pause();
+    feverBgm.pause();
+    startVoice.pause();
+
+    timeupVoice.currentTime = 0;
+    timeupVoice.play().catch(err => console.log("Timeup audio play blocked:", err));
+
+    timeDisplay.innerText = "0";
+    
+    selected = [];
+    isDragging = false;
+}
+
+/* ================= PAUSE ================= */
+
+pauseBtn.onclick = () => {
+    if (isGameOver || isSkillExecuting) return; 
+    handleUserInteraction();
+    isPaused = !isPaused;
+    if(isPaused){
+        pauseBtn.innerText = "▶";
+        startVoice.pause();
+        normalBgm.pause();
+        feverBgm.pause();
+    }else{
+        pauseBtn.innerText = "Ⅱ";
+        if(isFever){
+            feverBgm.play();
+        }else{
+            if (startVoice.currentTime > 0 && !startVoice.ended) {
+                startVoice.play();
+            } else {
+                normalBgm.play();
+            }
+        }
+    }
+};
+
+/* ================= FAN ================= */
+
+document.getElementById('fan-btn').onclick = () => {
+    if(isVoicePlaying || isGameOver || isPaused || isSkillExecuting) return; 
+    handleUserInteraction();
+    engine.world.bodies.forEach(b => {
+        if(!b.isStatic){
+            Body.setPosition(b,{
+                x:Math.random()*(width-80)+40,
+                y:Math.random()*(height-100)+50
+            });
+        }
+    });
+};
+
+/* ================= CHAIN ================= */
+
+let selected = [];
+let isDragging = false;
+
+Events.on(render,'afterRender',() => {
+    if(selected.length > 0){
+        const ctx = render.context;
+        
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#00e1ff';
+        ctx.strokeStyle = '#a0f0ff';
+        ctx.lineWidth = 10;
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(selected[0].position.x, selected[0].position.y);
+        selected.forEach(t => {
+            ctx.lineTo(t.position.x, t.position.y);
+        });
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        if(selected.length >= 2){
+            const lastTsum = selected[selected.length - 1];
+            
+            ctx.save();
+            ctx.font = 'italic bold 24px "Arial Black", sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#0055ff';
+            ctx.lineWidth = 5;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const textX = lastTsum.position.x + 25;
+            const textY = lastTsum.position.y - 25;
+            
+            ctx.strokeText(selected.length, textX, textY);
+            ctx.fillText(selected.length, textX, textY);
+            ctx.restore();
+        }
+    }
+});
+
+const canvas = render.canvas;
+
+function startDrag(e) {
+    handleUserInteraction();
+    if(isPaused || isVoicePlaying || isGameOver || isSkillExecuting) return; 
+    isDragging = true;
+    selected = [];
+    
+    if(e.type === 'touchstart') {
+        handleDragMove(e);
+    }
+}
+
+function endDrag() {
+    if(isPaused || isVoicePlaying || isGameOver || isSkillExecuting) return; 
+
+    if(selected.length >= 3){
+        const type = selected[0].plugin.tsumType;
+
+        if(selected.every(t => t.plugin.tsumType === type)){
+            const areaRect = gameAreaBg.getBoundingClientRect();
+            const containerRect = document.getElementById('game-container').getBoundingClientRect();
+            const offsetX = areaRect.left - containerRect.left;
+            const offsetY = areaRect.top - containerRect.top;
+
+            selected.forEach(t => {
+                createGaugeEffect(
+                    t.position.x + offsetX,
+                    t.position.y + offsetY,
+                    t.plugin.tsumType === myTsumType ? myTsumType : 'fever'
+                );
+            });
+
+            const baseScore = scoreTable[Math.min(selected.length,15)] || 0;
+            let finalScore = Math.floor(baseScore * (1 + (comboCount + 10) / 100));
+
+            if(isFever) finalScore *= 3;
+
+            score += finalScore;
+            scoreDisplay.innerText = Math.floor(score).toLocaleString();
+
+            comboCount++;
+            comboContainer.style.opacity = "1";
+            comboCountText.innerText = comboCount;
+
+            clearTimeout(comboTimer);
+            if(!isFever){
+                comboTimer = setTimeout(() => {
+                    comboCount = 0;
+                    comboContainer.style.opacity = "0";
+                },4000);
+            }
+
+            const myTsumRemoved = selected.filter(t => t.plugin.tsumType === myTsumType).length;
+            const normalRemoved = selected.length - myTsumRemoved;
+
+            if(myTsumRemoved > 0){
+                skillGauge += myTsumRemoved;
+                if(skillGauge > SKILL_MAX) skillGauge = SKILL_MAX;
+                updateSkillGauge();
+            }
+
+            if(!isFever && normalRemoved > 0){
+                feverCount += normalRemoved;
+                if(feverCount > 30) feverCount = 30;
+                updateFeverBar();
+            }
+
+            selected.forEach(b => {
+                Composite.remove(engine.world, b);
+            });
+
+            for(let i=0;i<selected.length;i++){
+                Composite.add(
+                    engine.world,
+                    createTsum(Math.random()*(width-80)+40, -50)
+                );
+            }
+        }
+    }
+    selected = [];
+    isDragging = false;
+}
+
+function handleDragMove(e) {
+    if(isPaused || isVoicePlaying || isGameOver || isSkillExecuting) return; 
+    if(!isDragging) return;
+
+    if (e.cancelable) e.preventDefault();
+
+    const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+
+    if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
+
+    const found = Query.point(engine.world.bodies, {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+    })[0];
+
+    if(found && !found.isStatic){
+        const last = selected[selected.length - 1];
+        if(selected.length === 0){
+            selected.push(found);
+        } else if (found.plugin.tsumType === last.plugin.tsumType && !selected.includes(found) && Vector.magnitude(Vector.sub(found.position, last.position)) < 80) {
+            selected.push(found);
+            playChainSound(selected.length);
+        }
+    }
+}
+
+function playChainSound(count) {
+    let sound = chainSoundMap[count] || (count >= 8 ? defaultChainSound : null);
+    if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(err => console.log("SE play blocked:", err));
+    }
+}
+
+canvas.addEventListener('mousedown', startDrag);
+canvas.addEventListener('mouseup', endDrag);
+canvas.addEventListener('mousemove', handleDragMove);
+
+canvas.addEventListener('touchstart', startDrag, { passive: false });
+canvas.addEventListener('touchend', endDrag, { passive: false });
+canvas.addEventListener('touchmove', handleDragMove, { passive: false });
+
+/* ================= START ================= */
+
+updateSkillGauge();
+Render.run(render);
+Runner.run(Runner.create(), engine);
+
+</script>
+
+</body>
+</html>

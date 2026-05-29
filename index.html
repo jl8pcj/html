@@ -228,6 +228,25 @@ html, body {
 }
 
 /* ================= MULTI SKILL LAYER ================= */
+/* ================= 1.png SKILL ================= */
+
+#one-skill-image {
+    position: absolute;
+    top: 115px;
+    left: 15px;
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    opacity: 0;
+    transform:
+        scale(0.7)
+        rotate(-10deg);
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+    z-index: 5006;
+    pointer-events: none;
+}
 
 #skill-overlay {
     position: absolute;
@@ -324,6 +343,35 @@ html, body {
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.25), opacity 0.3s ease;
     z-index: 5003;
 }
+
+
+/* ================= TEMMIE SKILL ================= */
+
+#temmie-vine {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5004;
+    pointer-events: none;
+}
+
+#temmie-head {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 170px;
+    height: 170px;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0);
+    transition:
+        transform 0.25s ease,
+        opacity 0.25s ease;
+    z-index: 5005;
+}
+
 
 /* ================= BOTTOM UI ================= */
 
@@ -517,6 +565,12 @@ html, body {
             <div id="sans-laser"></div>
 
             <img id="custom-eight-weapon" src="8s.png">
+            <canvas id="temmie-vine"></canvas>
+
+            <img id="temmie-head" src="7s.png">
+
+            <img id="one-skill-image" src="1s.png">
+
         </div>
     </div>
 
@@ -612,6 +666,7 @@ let skillGauge = 0;
 let isSkillFull = false;
 const SKILL_MAX = 3; 
 
+const oneSkillImage =document.getElementById('one-skill-image');
 const scoreDisplay = document.getElementById('score-display');
 const comboContainer = document.getElementById('combo-container');
 const comboCountText = document.getElementById('combo-count');
@@ -635,6 +690,11 @@ const papyrusWeapon = document.getElementById('papyrus-weapon');
 const sansBlaster = document.getElementById('sans-blaster');
 const sansLaser = document.getElementById('sans-laser');
 const customEightWeapon = document.getElementById('custom-eight-weapon');
+
+const temmieCanvas = document.getElementById('temmie-vine');
+const temmieCtx = temmieCanvas.getContext('2d');
+const temmieHead = document.getElementById('temmie-head');
+
 
 const chainSoundMap = {
     2: document.getElementById('se-c'),
@@ -719,20 +779,43 @@ function triggerFullGaugeEffect() {
     }, 300);
 }
 
+/* ================= myTsumBtn.onclick 修正 ================= */
+
 myTsumBtn.onclick = (e) => {
     e.stopPropagation();
     handleUserInteraction();
     
-    if (isSkillFull && !isSkillExecuting && !isGameOver && !isPaused && !isVoicePlaying) {
-        // マイツムの種類に応じて各スキル関数を呼び出す
+    if (
+        isSkillFull &&
+        !isSkillExecuting &&
+        !isGameOver &&
+        !isPaused &&
+        !isVoicePlaying
+    ) {
+
         if (myTsumType === '11.png') {
+
             activateAsgoreSkill();
+
         } else if (myTsumType === '5.png') {
+
             activatePapyrusSkill();
+
         } else if (myTsumType === '6.png') {
+
             activateSansSkill();
+
         } else if (myTsumType === '8.png') {
+
             activateEightSkill();
+
+        } else if (myTsumType === '7.png') {
+
+            activateTemmieSkill();
+
+        } else if (myTsumType === '1.png') {
+
+            activateOneSkill();
         }
     }
 };
@@ -765,6 +848,129 @@ function processSkillElimination(targetBodies) {
             createTsum(Math.random() * (width - 80) + 40, -50)
         );
     }
+}
+/* ================= 1.png SKILL ================= */
+
+function activateOneSkill() {
+
+    isSkillExecuting = true;
+
+    skillGauge = 0;
+    isSkillFull = false;
+
+    updateSkillGauge();
+
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display = 'block';
+
+    oneSkillImage.style.opacity = '1';
+
+    oneSkillImage.style.transform =
+        'scale(1) rotate(0deg)';
+
+    /* ================= 開始位置 ================= */
+
+    let startX = 65;
+    let startY = 165;
+
+    /* ================= 弧移動 ================= */
+
+    let t = 0;
+
+    const points = [];
+
+    const targetBodies = [];
+
+    const interval =
+    setInterval(()=>{
+
+        t += 0.02;
+
+        if(t > 1){
+            t = 1;
+        }
+
+        /* ================= 下へ膨らむ弧 ================= */
+
+        const x =
+            startX
+            +
+            (width - 140) * t;
+
+        const y =
+            startY
+            +
+            Math.sin(
+                t * Math.PI
+            ) * 90;
+
+        oneSkillImage.style.left =
+            x + 'px';
+
+        oneSkillImage.style.top =
+            y + 'px';
+
+        points.push({x,y});
+
+        /* ================= 軌跡上のツムを1.png化 ================= */
+
+        engine.world.bodies.forEach(b=>{
+
+            if(b.isStatic) return;
+
+            const dx =
+                b.position.x - x;
+
+            const dy =
+                b.position.y - y;
+
+            const dist =
+                Math.sqrt(
+                    dx*dx + dy*dy
+                );
+
+            if(dist < 50){
+
+                b.plugin.tsumType =
+                    '1.png';
+
+                b.render.sprite.texture =
+                    '1.png';
+            }
+        });
+
+        if(t >= 1){
+
+            clearInterval(interval);
+
+            oneSkillImage.style.opacity =
+                '0';
+
+            oneSkillImage.style.transform =
+                'scale(1.15) rotate(8deg)';
+
+            setTimeout(()=>{
+
+                skillOverlay.style.display =
+                    'none';
+
+                isSkillExecuting =
+                    false;
+
+                /* ================= 元位置へ戻す ================= */
+
+                oneSkillImage.style.left =
+                    '15px';
+
+                oneSkillImage.style.top =
+                    '115px';
+
+            },250);
+        }
+
+    },16);
 }
 
 /* ================= 11.png: アズゴア スキル ================= */
@@ -943,6 +1149,224 @@ function activateEightSkill() {
     }, 1200);
 }
 
+/* ================= 7.png: TEMMIE スキル ================= */
+
+function activateTemmieSkill() {
+
+    isSkillExecuting = true;
+
+    skillGauge = 0;
+    isSkillFull = false;
+
+    updateSkillGauge();
+
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display = 'block';
+
+    temmieCanvas.width = width;
+    temmieCanvas.height = height;
+
+    temmieCtx.clearRect(0,0,width,height);
+
+    temmieHead.style.opacity = '1';
+    temmieHead.style.transform = 'scale(1)';
+
+    const points = [];
+
+    /* ================= さらに左から開始 ================= */
+
+    let x = 70;
+    let y = 95;
+
+    points.push({x,y});
+
+    /* ================= 長さ ================= */
+
+    const down1Length =
+        Math.random() * 180 + 140;
+
+    const rightLength =
+        Math.random() * 220 + 120;
+
+    /*
+        0 = 下
+        1 = 右
+        2 = 下
+    */
+
+    let phase = 0;
+
+    let moved = 0;
+
+    let targetBodies = [];
+
+    function drawVine(count = points.length) {
+
+        temmieCtx.clearRect(0,0,width,height);
+
+        temmieCtx.lineCap = 'round';
+        temmieCtx.lineJoin = 'round';
+
+        /* ================= 白い足 ================= */
+
+        temmieCtx.strokeStyle = '#ffffff';
+
+        /* ================= 少し細め ================= */
+
+        temmieCtx.lineWidth = 18;
+
+        temmieCtx.shadowBlur = 10;
+        temmieCtx.shadowColor = '#ffffff';
+
+        temmieCtx.beginPath();
+
+        temmieCtx.moveTo(
+            points[0].x,
+            points[0].y
+        );
+
+        for(let i=1;i<count;i++) {
+
+            temmieCtx.lineTo(
+                points[i].x,
+                points[i].y
+            );
+        }
+
+        temmieCtx.stroke();
+
+        temmieCtx.shadowBlur = 0;
+    }
+
+    const extendInterval = setInterval(()=> {
+
+        /* ================= 真下 ================= */
+
+        if(phase === 0) {
+
+            y += 16;
+            moved += 16;
+
+            if(moved >= down1Length) {
+
+                phase = 1;
+                moved = 0;
+            }
+        }
+
+        /* ================= 右へ90度 ================= */
+
+        else if(phase === 1) {
+
+            x += 16;
+            moved += 16;
+
+            if(moved >= rightLength) {
+
+                phase = 2;
+            }
+        }
+
+        /* ================= 再び真下 ================= */
+
+        else {
+
+            y += 16;
+        }
+
+        if(x > width - 60) {
+            x = width - 60;
+        }
+
+        points.push({x,y});
+
+        drawVine();
+
+        /* ================= 軌跡上のツム取得 ================= */
+
+        engine.world.bodies.forEach(b=> {
+
+            if(b.isStatic) return;
+
+            const dx = b.position.x - x;
+            const dy = b.position.y - y;
+
+            const dist =
+                Math.sqrt(dx*dx + dy*dy);
+
+            if(
+                dist < 48 &&
+                !targetBodies.includes(b)
+            ) {
+                targetBodies.push(b);
+            }
+        });
+
+        /* ================= 画面最下端まで伸ばす ================= */
+
+        if(y >= height + 40) {
+
+            clearInterval(
+                extendInterval
+            );
+
+            processSkillElimination(
+                targetBodies
+            );
+
+            setTimeout(()=> {
+
+                let retractCount =
+                    points.length;
+
+                const retractInterval =
+                setInterval(()=> {
+
+                    retractCount--;
+
+                    drawVine(retractCount);
+
+                    if(retractCount <= 1) {
+
+                        clearInterval(
+                            retractInterval
+                        );
+
+                        temmieCtx.clearRect(
+                            0,
+                            0,
+                            width,
+                            height
+                        );
+
+                        temmieHead.style.opacity =
+                        '0';
+
+                        temmieHead.style.transform =
+                        'scale(0)';
+
+                        setTimeout(()=> {
+
+                            skillOverlay.style.display =
+                            'none';
+
+                            isSkillExecuting = false;
+
+                        },250);
+                    }
+
+                },16);
+
+            },120);
+        }
+
+    },16);
+}
+
+
+
 /* ================= EFFECT ================= */
 
 function createGaugeEffect(x,y,target){
@@ -991,7 +1415,7 @@ function selectTsums(){
     ];
     
     // スキル対象プールに全4キャラを含める
-    const skillPool = ['5.png', '6.png', '11.png', '8.png'];
+    const skillPool = ['1.png', '5.png', '6.png', '11.png', '8.png', '7.png'];
     myTsumType = skillPool[Math.floor(Math.random() * skillPool.length)];
 
     let remain = activeImages.filter(img => img !== myTsumType)
