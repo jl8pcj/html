@@ -59,6 +59,7 @@ let skillGauge = 0;
 let isSkillFull = false;
 const SKILL_MAX = 3; 
 
+const fourSkillImage =document.getElementById('four-skill-image');
 const friskSkillImage =document.getElementById('frisk-skill-image');
 const oneSkillImage =document.getElementById('one-skill-image');
 const scoreDisplay = document.getElementById('score-display');
@@ -191,6 +192,11 @@ myTsumBtn.onclick = (e) => {
 
             activateAsgoreSkill();
 
+        } else if(myTsumType === '4.png'){
+
+            activateFourSkill();
+
+
         } else if (myTsumType === '5.png') {
 
             activatePapyrusSkill();
@@ -249,7 +255,7 @@ function processSkillElimination(targetBodies) {
         );
     }
 }
-/* ================= 3.png FRISK ================= */
+/* ================= 3.png キャラ ================= */
 
 function activateFriskSkill(){
 
@@ -425,7 +431,58 @@ function activateOneSkill() {
 
     },16);
 }
+/* ================= 4.png SKILL ================= */
 
+function activateFourSkill(){
+
+    isSkillExecuting = true;
+
+    skillGauge = 0;
+    isSkillFull = false;
+
+    updateSkillGauge();
+
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display =
+        'block';
+
+    /* 画面暗転 */
+
+    skillOverlay.style.background =
+        'rgba(0,0,0,0.85)';
+
+    fourSkillImage.style.opacity =
+        '1';
+
+    fourSkillImage.style.transform =
+        'translate(-50%,-50%) scale(1)';
+
+    setTimeout(()=>{
+
+        fourSkillImage.style.opacity =
+            '0';
+
+        fourSkillImage.style.transform =
+            'translate(-50%,-50%) scale(1.1)';
+
+        skillOverlay.style.background =
+            'transparent';
+
+        setTimeout(()=>{
+
+            skillOverlay.style.display =
+                'none';
+
+            isSkillExecuting =
+                false;
+
+        },300);
+
+    },2000);
+
+}
 /* ================= 11.png: アズゴア スキル ================= */
 function activateAsgoreSkill() {
     isSkillExecuting = true;
@@ -868,7 +925,7 @@ function selectTsums(){
     ];
     
     // スキル対象プールに全4キャラを含める
-    const skillPool = ['1.png', '3.png', '5.png', '6.png', '11.png', '8.png', '7.png'];
+    const skillPool = ['1.png', '3.png', '4.png', '5.png', '6.png', '11.png', '8.png', '7.png'];
     myTsumType = skillPool[Math.floor(Math.random() * skillPool.length)];
 
     let remain = activeImages.filter(img => img !== myTsumType)

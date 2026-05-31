@@ -220,7 +220,7 @@ html, body {
 }
 
 /* ================= MULTI SKILL LAYER ================= */
-/* ================= FRISK SKILL ================= */
+/* ================= キャラ SKILL ================= */
 
 #frisk-skill-image{
 
@@ -363,6 +363,33 @@ html, body {
     z-index: 5003;
 }
 
+/* ================= 4.png SKILL ================= */
+
+#four-skill-image{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:80%;
+    height:80%;
+
+    object-fit:contain;
+
+    transform:
+        translate(-50%,-50%)
+        scale(0);
+
+    opacity:0;
+
+    transition:
+        transform 0.35s ease,
+        opacity 0.35s ease;
+
+    z-index:5008;
+
+    pointer-events:none;
+}
 
 /* ================= TEMMIE SKILL ================= */
 
