@@ -266,14 +266,7 @@ function processSkillElimination(targetBodies) {
 
 function activateFriskSkill(){
 
-    let x = 90;
-let y = 370;
-
-twelveShot.style.opacity = '1';
-twelveShot.style.left = x + 'px';
-twelveShot.style.top = y + 'px';
-
-return;
+    
 
     isSkillExecuting = true;
 
@@ -362,7 +355,7 @@ function activateTwelveSkill(){
     const shot1 =
     setInterval(()=>{
 
-        x += 0;
+        x += 4;
 
         twelveShot.style.left =
             x + 'px';
