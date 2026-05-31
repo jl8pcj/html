@@ -339,7 +339,7 @@ function activateTwelveSkill(){
 
     /* ---------- 1発目 ---------- */
 
-    let x = 120;
+    let x = 90;
     let y = 90;
 
     twelveShot.style.opacity = '1';
@@ -353,7 +353,7 @@ function activateTwelveSkill(){
     const shot1 =
     setInterval(()=>{
 
-        x += 12;
+        x += 1812;
 
         twelveShot.style.left =
             x + 'px';
@@ -394,8 +394,8 @@ function activateTwelveSkill(){
             twelveHead.style.transform =
                 'rotate(45deg)';
 
-            let x2 = 120;
-            let y2 = 90;
+            let x2 = 130;
+            let y2 = 70;
 
             twelveShot.style.left =
                 x2 + 'px';
@@ -411,8 +411,8 @@ function activateTwelveSkill(){
             const shot2 =
             setInterval(()=>{
 
-                x2 += 12;
-                y2 += 12;
+                x2 += 14;
+                y2 += 14;
 
                 twelveShot.style.left =
                     x2 + 'px';
