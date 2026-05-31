@@ -340,7 +340,7 @@ function activateTwelveSkill(){
     /* ---------- 1発目 ---------- */
 
     let x = 90;
-    let y = 90;
+    let y = 70;
 
     twelveShot.style.opacity = '1';
     twelveShot.style.left = x + 'px';
@@ -353,7 +353,7 @@ function activateTwelveSkill(){
     const shot1 =
     setInterval(()=>{
 
-        x += 20;
+        x += 16;
 
         twelveShot.style.left =
             x + 'px';
@@ -411,8 +411,8 @@ function activateTwelveSkill(){
             const shot2 =
             setInterval(()=>{
 
-                x2 += 16;
-                y2 += 16;
+                x2 += 14;
+                y2 += 14;
 
                 twelveShot.style.left =
                     x2 + 'px';
