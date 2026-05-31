@@ -57,7 +57,7 @@ let feverTimer = null;
 /* SKILL (TEST MODE: MAX 3) */
 let skillGauge = 0;
 let isSkillFull = false;
-const SKILL_MAX = 30; 
+const SKILL_MAX = 25; 
 
 const twelveHead =document.getElementById('twelve-head');
 const twelveShot =document.getElementById('twelve-shot');
