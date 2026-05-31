@@ -1,0 +1,552 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #02080a;
+    overflow: hidden;
+    font-family: 'Arial Black', sans-serif;
+    touch-action: none;
+}
+ 
+
+#game-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+
+    background-image: url('bg.jpg');
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ================= TOP UI ================= */
+
+#top-ui {
+    width: 100%;
+    height: 15dvh;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    position: relative;
+    flex-shrink: 0;
+}
+
+#score-oval {
+    width: 160px;
+    height: 35px;
+
+    background: radial-gradient(
+        circle at 30% 20%,
+        #69dcff 0%,
+        #2f8dd0 45%,
+        #1f5ea6 100%
+    );
+
+    border-radius: 999px;
+    border: 3px solid rgba(255,255,255,0.9);
+
+    box-shadow:
+        inset 0 2px 4px rgba(255,255,255,0.35),
+        0 4px 8px rgba(0,0,0,0.35);
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 12px;
+}
+
+#score-display {
+    font-size: 20px;
+    color: #ffffff;
+    font-weight: bold;
+
+    text-shadow:
+        0 0 6px rgba(0,0,0,0.8),
+        2px 2px 0px #003366;
+}
+
+/* ================= TIME ================= */
+
+#time-box {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 55px;
+    height: 55px;
+
+    background: conic-gradient(
+        from 0deg,
+        #173a96 0deg,
+        #173a96 calc(360deg - (var(--timer-angle) * 1deg)),
+        #66ecff calc(360deg - (var(--timer-angle) * 1deg)),
+        #66ecff 360deg
+    );
+
+    border-radius: 18px;
+    border: 3px solid rgba(255,255,255,0.95);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffffff;
+
+    box-shadow:
+        inset 0 2px 5px rgba(255,255,255,0.25),
+        0 4px 6px rgba(0,0,0,0.3);
+
+    z-index: 2000;
+    --timer-angle: 360;
+}
+
+#time-display {
+    text-shadow: 0 0 6px rgba(0,0,0,0.7);
+}
+
+/* ================= PAUSE ================= */
+
+#pause-btn {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 55px;
+    height: 55px;
+
+    background: linear-gradient(
+        to bottom,
+        #ffd84d 0%,
+        #ffb703 100%
+    );
+
+    border-radius: 18px;
+    border: 3px solid rgba(255,255,255,0.95);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 28px;
+    font-weight: bold;
+    color: #7a4b00;
+
+    box-shadow:
+        inset 0 2px 5px rgba(255,255,255,0.4),
+        0 4px 6px rgba(0,0,0,0.3);
+
+    z-index: 2000;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+/* ================= PLAY AREA ================= */
+
+#game-area-bg {
+    width: 100%;
+    height: 70dvh;
+    flex-shrink: 0;
+
+    background: radial-gradient(
+        circle at 50% 35%,
+        #274fba 0%,
+        #173a96 45%,
+        #0c256f 100%
+    );
+
+    border-radius: 200px / 120px;
+    z-index: 1;
+    position: relative;
+
+    box-shadow:
+        inset 0 8px 20px rgba(255,255,255,0.12),
+        inset 0 -10px 20px rgba(0,0,0,0.35);
+
+    overflow: hidden;
+}
+
+#matter-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+}
+
+/* ================= COMBO ================= */
+
+#combo-container {
+    position: absolute;
+    top: 30px;
+    right: 20px;
+
+    text-align: center;
+    color: #fff;
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+#combo-count {
+    font-size: 40px;
+    font-style: italic;
+    display: block;
+    line-height: 1;
+
+    text-shadow:
+        0 0 10px #00e1ff,
+        2px 2px 2px #000;
+}
+
+#combo-label {
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* ================= MULTI SKILL LAYER ================= */
+/* ================= FRISK SKILL ================= */
+
+#frisk-skill-image{
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:100%;
+    height:100%;
+
+    object-fit:contain;
+
+    transform:
+        translate(-50%,-50%)
+        scale(0);
+
+    opacity:0;
+
+    transition:
+        transform 0.35s ease,
+        opacity 0.35s ease;
+
+    z-index:5007;
+
+    pointer-events:none;
+}
+
+#one-skill-image {
+    position: absolute;
+    top: 115px;
+    left: 15px;
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    opacity: 0;
+    transform:
+        scale(0.7)
+        rotate(-10deg);
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+    z-index: 5006;
+    pointer-events: none;
+}
+
+#skill-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5000;
+    pointer-events: none;
+    display: none;
+    background: transparent;
+    transition: background 0.2s ease;
+}
+
+/* 11s.png (アズゴア武器) */
+#asgore-weapon {
+    position: absolute;
+    top: 50%;
+    left: -580px; 
+    transform: translateY(-50%);
+    width: 560px;  
+    height: 560px; 
+    object-fit: contain;
+    opacity: 0;
+    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+}
+
+/* アズゴア斬撃ライン */
+#asgore-slash {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 0px;
+    background: linear-gradient(to bottom, rgba(255,50,50,0) 0%, rgba(255,200,50,1) 30%, rgba(255,255,255,1) 50%, rgba(255,200,50,1) 70%, rgba(255,50,50,0) 100%);
+    box-shadow: 0 0 25px 10px #ff3300;
+    opacity: 0;
+    transition: height 0.1s ease, opacity 0.1s ease;
+}
+
+/* 5s.png (パピルス骨演出用) */
+#papyrus-weapon {
+    position: absolute;
+    top: 65%; 
+    left: 100%; 
+    transform: translateY(-50%);
+    width: 140px;  
+    height: 140px; 
+    object-fit: contain;
+    opacity: 0;
+    transition: left 3.2s linear, opacity 0.2s ease;
+}
+
+/* 6s.png (サンズ・ガスターブラスター) */
+#sans-blaster {
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    transform: translate(-50%, -100%) scale(0);
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+    z-index: 5002;
+}
+
+/* サンズ・縦レーザー */
+#sans-laser {
+    position: absolute;
+    top: 100px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0px;
+    height: calc(100% - 100px); 
+    background: linear-gradient(to right, rgba(0,150,255,0) 0%, rgba(100,220,255,1) 30%, rgba(255,255,255,1) 50%, rgba(100,220,255,1) 70%, rgba(0,150,255,0) 100%);
+    box-shadow: 0 0 35px 15px #00bfff;
+    opacity: 0;
+    transition: width 0.1s ease, opacity 0.1s ease;
+    z-index: 5001;
+}
+
+/* 8s.png (8.pngスキル用ポップアップアセット) */
+#custom-eight-weapon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 220px;
+    height: 220px;
+    object-fit: contain;
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.25), opacity 0.3s ease;
+    z-index: 5003;
+}
+
+
+/* ================= TEMMIE SKILL ================= */
+
+#temmie-vine {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5004;
+    pointer-events: none;
+}
+
+#temmie-head {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 170px;
+    height: 170px;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0);
+    transition:
+        transform 0.25s ease,
+        opacity 0.25s ease;
+    z-index: 5005;
+}
+
+
+/* ================= BOTTOM UI ================= */
+
+#bottom-ui {
+    width: 100%;
+    height: 15dvh;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+/* ================= MY TSUM ================= */
+
+#mytsum-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+
+    width: 56px;
+    height: 56px;
+
+    background: conic-gradient(
+        from 0deg,
+        #66ecff 0deg,
+        #66ecff var(--skill-angle),
+        #173a96 var(--skill-angle),
+        #173a96 360deg
+    );
+
+    --skill-angle: 0deg;
+
+    border-radius: 18px; 
+    border: 3px solid rgba(255,255,255,0.95);
+
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-shadow:
+        inset 0 2px 5px rgba(255,255,255,0.4),
+        0 4px 6px rgba(0,0,0,0.3);
+
+    z-index: 1002;
+    transition: transform 0.2s ease-out;
+    cursor: pointer;
+}
+
+#mytsum-btn img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    transition: filter 0.3s;
+}
+
+/* ================= FEVER ================= */
+
+#fever-container {
+    position: absolute;
+    left: 100px;
+    right: 100px;
+    bottom: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+}
+
+#fever-bar-bg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 999px;
+
+    background: radial-gradient(
+        circle at 30% 20%,
+        #69dcff 0%,
+        #2f8dd0 45%,
+        #1f5ea6 100%
+    );
+
+    border: 3px solid rgba(255,255,255,0.9);
+
+    box-shadow:
+        inset 0 2px 4px rgba(255,255,255,0.35),
+        0 4px 8px rgba(0,0,0,0.35);
+}
+
+#fever-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
+    height: 100%;
+    border-radius: 999px;
+
+    background: linear-gradient(
+        to bottom,
+        #ffd84d 0%,
+        #ffb703 100%
+    );
+
+    transition: width 0.1s linear;
+}
+
+#fever-text {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+
+    text-shadow:
+        0 0 6px rgba(0,0,0,0.8),
+        2px 2px 0px #003366;
+}
+
+/* ================= FAN ================= */
+
+#fan-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+
+    width: 56px;
+    height: 56px;
+
+    background: linear-gradient(
+        to bottom,
+        #ffd84d 0%,
+        #ffb703 100%
+    );
+
+    border-radius: 18px;
+    border: 3px solid rgba(255,255,255,0.95);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-shadow:
+        inset 0 2px 5px rgba(255,255,255,0.4),
+        0 4px 6px rgba(0,0,0,0.3);
+
+    z-index: 1002;
+    cursor: pointer;
+}
+
+#fan-image {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+}

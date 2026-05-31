@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+//
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Tsum Tsum Style Game</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+</head>
+
+<body>
+
+    <div id="game-container">
+
+        <!-- ================= TOP UI ================= -->
+
+        <div id="top-ui">
+
+            <div id="time-box">
+                <span id="time-display">60</span>
+            </div>
+
+            <div id="score-oval">
+                <div id="score-display">0</div>
+            </div>
+
+            <div id="pause-btn">Ⅱ</div>
+
+        </div>
+
+        <!-- ================= PLAY AREA ================= -->
+
+        <div id="game-area-bg">
+
+            <div id="combo-container">
+                <span id="combo-count">0</span>
+                <span id="combo-label">COMBO</span>
+            </div>
+
+            <!-- ================= SKILL OVERLAY ================= -->
+
+            <div id="skill-overlay">
+
+                <!-- 11.png アズゴア -->
+                <img id="asgore-weapon" src="11s.png">
+                <div id="asgore-slash"></div>
+
+                <!-- 3.png フリスク -->
+                <img id="frisk-skill-image" src="3s.png">
+
+                <!-- 5.png パピルス -->
+                <img id="papyrus-weapon" src="5s.png">
+
+                <!-- 6.png サンズ -->
+                <img id="sans-blaster" src="6s.png">
+                <div id="sans-laser"></div>
+
+                <!-- 8.png -->
+                <img id="custom-eight-weapon" src="8s.png">
+
+                <!-- 7.png TEMMIE -->
+                <canvas id="temmie-vine"></canvas>
+                <img id="temmie-head" src="7s.png">
+
+                <!-- 1.png -->
+                <img id="one-skill-image" src="1s.png">
+
+            </div>
+
+        </div>
+
+        <!-- ================= BOTTOM UI ================= -->
+
+        <div id="bottom-ui">
+
+            <!-- MY TSUM -->
+
+            <div id="mytsum-btn">
+                <img id="mytsum-image" src="">
+            </div>
+
+            <!-- FEVER -->
+
+            <div id="fever-container">
+
+                <div id="fever-bar-bg">
+
+                    <div id="fever-bar-fill"></div>
+
+                    <div id="fever-text">
+                        FEVER
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- FAN -->
+
+            <div id="fan-btn">
+                <img src="Fun.png" id="fan-image">
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================= AUDIO ================= -->
+
+    <audio id="start-voice" src="go.wav"></audio>
+    <audio id="timeup-voice" src="timeup.wav"></audio>
+
+    <audio id="normal-bgm" src="temshop.mp3" loop></audio>
+    <audio id="fever-bgm" src="metal.mp3" loop></audio>
+
+    <audio id="se-c" src="C.mp3"></audio>
+    <audio id="se-d" src="D.mp3"></audio>
+    <audio id="se-e" src="E.mp3"></audio>
+    <audio id="se-f" src="F.mp3"></audio>
+    <audio id="se-g" src="G.mp3"></audio>
+    <audio id="se-a" src="A.mp3"></audio>
+    <audio id="se-b" src="B.mp3"></audio>
+
+    <!-- ================= GAME SCRIPT ================= -->
+
+    <script src="game.js"></script>
+
+</body>
+
+</html>
