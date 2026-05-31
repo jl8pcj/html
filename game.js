@@ -266,6 +266,15 @@ function processSkillElimination(targetBodies) {
 
 function activateFriskSkill(){
 
+    let x = 90;
+let y = 370;
+
+twelveShot.style.opacity = '1';
+twelveShot.style.left = x + 'px';
+twelveShot.style.top = y + 'px';
+
+return;
+
     isSkillExecuting = true;
 
     skillGauge = 0;
