@@ -340,7 +340,7 @@ function activateTwelveSkill(){
     /* ---------- 1発目 ---------- */
 
     let x = 90;
-    let y = 170;
+    let y = 370;
 
     twelveShot.style.opacity = '1';
     twelveShot.style.left = x + 'px';
