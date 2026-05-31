@@ -353,7 +353,7 @@ function activateTwelveSkill(){
     const shot1 =
     setInterval(()=>{
 
-        x += 8;
+        x += 12;
 
         twelveShot.style.left =
             x + 'px';
@@ -411,8 +411,8 @@ function activateTwelveSkill(){
             const shot2 =
             setInterval(()=>{
 
-                x2 += 6;
-                y2 += 6;
+                x2 += 12;
+                y2 += 12;
 
                 twelveShot.style.left =
                     x2 + 'px';
