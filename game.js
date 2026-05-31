@@ -59,6 +59,8 @@ let skillGauge = 0;
 let isSkillFull = false;
 const SKILL_MAX = 3; 
 
+const twelveHead =document.getElementById('twelve-head');
+const twelveShot =document.getElementById('twelve-shot');
 const fourSkillImage =document.getElementById('four-skill-image');
 const friskSkillImage =document.getElementById('frisk-skill-image');
 const oneSkillImage =document.getElementById('one-skill-image');
@@ -221,7 +223,12 @@ myTsumBtn.onclick = (e) => {
 
             activateFriskSkill();
 
-        }
+        }else if(myTsumType === '12.png'){
+
+            activateTwelveSkill();
+
+}
+
         
     }
 };
@@ -307,6 +314,169 @@ function activateFriskSkill(){
         },300);
 
     },1000);
+}
+
+/* ================= 12.png SKILL ================= */
+
+function activateTwelveSkill(){
+
+    isSkillExecuting = true;
+
+    skillGauge = 0;
+    isSkillFull = false;
+
+    updateSkillGauge();
+
+    selected = [];
+    isDragging = false;
+
+    skillOverlay.style.display =
+        'block';
+
+    twelveHead.style.opacity = '1';
+    twelveHead.style.transform =
+        'rotate(0deg)';
+
+    /* ---------- 1発目 ---------- */
+
+    let x = 120;
+    let y = 90;
+
+    twelveShot.style.opacity = '1';
+    twelveShot.style.left = x + 'px';
+    twelveShot.style.top = y + 'px';
+    twelveShot.style.transform =
+        'rotate(0deg)';
+
+    const hitBodies1 = [];
+
+    const shot1 =
+    setInterval(()=>{
+
+        x += 20;
+
+        twelveShot.style.left =
+            x + 'px';
+
+        engine.world.bodies.forEach(b=>{
+
+            if(b.isStatic) return;
+
+            const dx =
+                b.position.x - x;
+
+            const dy =
+                b.position.y - y;
+
+            if(
+                Math.sqrt(
+                    dx*dx+dy*dy
+                ) < 55
+            ){
+                if(
+                    !hitBodies1.includes(b)
+                ){
+                    hitBodies1.push(b);
+                }
+            }
+        });
+
+        if(x > width + 120){
+
+            clearInterval(shot1);
+
+            processSkillElimination(
+                hitBodies1
+            );
+
+            /* ---------- 2発目 ---------- */
+
+            twelveHead.style.transform =
+                'rotate(45deg)';
+
+            let x2 = 120;
+            let y2 = 90;
+
+            twelveShot.style.left =
+                x2 + 'px';
+
+            twelveShot.style.top =
+                y2 + 'px';
+
+            twelveShot.style.transform =
+                'rotate(45deg)';
+
+            const hitBodies2 = [];
+
+            const shot2 =
+            setInterval(()=>{
+
+                x2 += 16;
+                y2 += 16;
+
+                twelveShot.style.left =
+                    x2 + 'px';
+
+                twelveShot.style.top =
+                    y2 + 'px';
+
+                engine.world.bodies.forEach(b=>{
+
+                    if(b.isStatic) return;
+
+                    const dx =
+                        b.position.x - x2;
+
+                    const dy =
+                        b.position.y - y2;
+
+                    if(
+                        Math.sqrt(
+                            dx*dx+dy*dy
+                        ) < 55
+                    ){
+                        if(
+                            !hitBodies2.includes(b)
+                        ){
+                            hitBodies2.push(b);
+                        }
+                    }
+                });
+
+                if(
+                    x2 > width+120 ||
+                    y2 > height+120
+                ){
+
+                    clearInterval(
+                        shot2
+                    );
+
+                    processSkillElimination(
+                        hitBodies2
+                    );
+
+                    twelveShot.style.opacity =
+                        '0';
+
+                    twelveHead.style.opacity =
+                        '0';
+
+                    setTimeout(()=>{
+
+                        skillOverlay.style.display =
+                            'none';
+
+                        isSkillExecuting =
+                            false;
+
+                    },250);
+                }
+
+            },16);
+        }
+
+    },16);
 }
 /* ================= 1.png SKILL ================= */
 
@@ -925,7 +1095,7 @@ function selectTsums(){
     ];
     
     // スキル対象プールに全4キャラを含める
-    const skillPool = ['1.png', '3.png', '4.png', '5.png', '6.png', '11.png', '8.png', '7.png'];
+    const skillPool = ['1.png', '3.png', '4.png', '5.png', '6.png', '11.png', '8.png', '7.png', '12.png'];
     myTsumType = skillPool[Math.floor(Math.random() * skillPool.length)];
 
     let remain = activeImages.filter(img => img !== myTsumType)
